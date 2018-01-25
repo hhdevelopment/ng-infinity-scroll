@@ -1,0 +1,26 @@
+infinity-scroll {
+	display: block;
+	height: 100%;
+	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gEZDw8Zb4bSvgAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAADElEQVQI12M4cOAAAASEAkEwrrB4AAAAAElFTkSuQmCC');
+	background-repeat: no-repeat;
+	background-size: 4px 100%;
+	background-position: right 0%;
+	overflow-y: hidden;
+	position:relative;
+}
+infinity-scroll > ng-transclude {
+	display: block;
+	width: calc(100% - 4px);	
+}
+infinity-scroll[hover] {
+	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gEZDw83s1DfcQAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAADElEQVQI12NYuXIlAAP6Afx7V39BAAAAAElFTkSuQmCC');
+}
+infinity-scroll[drag] {
+	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gEZDxAQ2wBkhAAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAADElEQVQI12OorKwEAALaAWyeCJ/eAAAAAElFTkSuQmCC');
+}
+infinity-scroll span.badge {
+    position:absolute;
+    bottom:10px;
+    right:10px;
+	 z-index: 1000;
+}

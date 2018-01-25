@@ -1,0 +1,28 @@
+image: node:4.6.0
+pipelines:
+   default:
+      - step:
+         caches:
+            - node
+         script:
+            - npm install
+            - npm install gulp-cli -g
+            - gulp build
+            - curl -X POST "https://${BB_AUTH_STRING}@api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files=@"dist/infinityscroll.js"
+            - curl -X POST --user "${BB_AUTH_STRING}" "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files=@"dist/infinityscroll.css"
+   branches:
+      release:
+         - step:
+            caches:
+               - node
+            script:
+               - npm install 
+               - npm install gulp-cli -g
+               - gulp build
+               - printf "//`node -p \"require('url').parse(process.env.NPM_REGISTRY_URL || 'https://registry.npmjs.org').host\"`/:_authToken=${NPM_TOKEN}\nregistry=${NPM_REGISTRY_URL:-https://registry.npmjs.org}\n" >> ~/.npmrc
+               - git config user.email "francois.achache@gmail.com"
+               - git config user.name "hhfrancois"
+               - npm version patch
+               - git push origin $BITBUCKET_BRANCH:master
+               - git push origin --tags
+               - npm publish
