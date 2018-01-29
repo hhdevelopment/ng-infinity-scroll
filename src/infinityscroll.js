@@ -3,11 +3,12 @@ require("./infinityscroll.css");
 (function (ng) {
 	var MODULENAME = 'infinity.scroll';
 	var DIRECTIVENAME = 'infinityScroll';
+	var NODENAME = 'INFINITY-SCROLL';
 	var SCROLLBY = 3;
 	'use strict';
 	ng.module(MODULENAME, []).directive(DIRECTIVENAME, InfinityScroll);
 	/* @ngInject */
-	function InfinityScroll($timeout, $window) {
+	function InfinityScroll($timeout) {
 		return {
 			restrict: 'E',
 			templateUrl: "infinityscroll.html",
@@ -16,70 +17,57 @@ require("./infinityscroll.css");
 			transclude: true,
 			scope: {
 				'total': '<',
-				'width': '<',
+				'scrollbarSize': '<',
 				'showInfoDelay': '<',
 				'ngBegin': '=',
-				'ngLimit': '=',
-				'ngMoveWindow': '&'
-			}, link: function (scope, elt, attrs) {
-				elt.find('ng-transclude').css({'width': 'calc(100% - ' + (scope.width | 4) + 'px)'});
+				'ngLimit': '='
+			}, link: function (scope, ngelt, attrs) {
+				ngelt.find('ng-transclude').css({'width': 'calc(100% - ' + (scope.scrollbarSize | 4) + 'px)'});
+				var ctrl = scope.ctrl;
+				ctrl.ngelt = ngelt; // on sauve l'element jquery
+				ctrl.computeAreas(); // calcule les rectangles des zones 
+				ctrl.defineInitialValues();
 				var watcherClears = [];
-				watcherClears.push(scope.$watchGroup(['total'], function (vs1, vs2, s) {
-					withTD = false;
-					$timeout(computeLimit, 500, true, $timeout, s, elt);
+				watcherClears.push(scope.$watch('total', function (v1, v2, s) {
+					s.ctrl.updateTotal();
 				}, false));
-				watcherClears.push(scope.$watchGroup(['ngLimit'], function (vs1, vs2, s) {
-					$timeout(computeLimit, 300, true, $timeout, s, elt);
-				}, false));
-				watcherClears.push(scope.$watchGroup(['ngBegin'], function (vs1, vs2, s) {
-					computeY(s, elt);
-					var posY = (s.ngBegin * 100) / (s.total - s.ngLimit);
-					s.ctrl.posY = moveGrabber($timeout, s, elt, posY);
+				watcherClears.push(scope.$watch('ngLimit', function (v1, v2, s) {
+					$timeout(s.ctrl.updateLimit, 300, true);
 				}, false));
 				scope.$on('$destroy', function () {
-					// stop watching when scope is destroyed
 					watcherClears.forEach(function (watcherClear) {
 						watcherClear();
 					});
 				});
 				$(window).on('resize', function (event) {
-					scope.ngLimit = 25;
-					withTD = false;
-					$timeout(computeLimit, 200, true, $timeout, scope, elt);
-				});
-				elt.bind("wheel", function (event) {
 					scope.$apply(function () {
-						scope.ctrl.wheel(event);
+						ctrl.resize();
 					});
 				});
-				elt.bind("click", function (event) {
+				ngelt.bind("wheel", function (event) {
 					scope.$apply(function () {
-						scope.ctrl.click(event);
+						ctrl.wheel(event);
 					});
 				});
-				elt.bind("mouseover", function (event) {
+				ngelt.bind("click", function (event) {
 					scope.$apply(function () {
-						scope.ctrl.mouseover(event);
+						ctrl.click(event);
 					});
 				});
-				elt.bind("mouseout", function (event) {
-					scope.$apply(function () {
-						scope.ctrl.mouseout(event);
-					});
+				ngelt.bind("mouseout", function (event) {
+					ctrl.ngelt.attr('hover', null); // fin du survol (eventuellement)
 				});
-				elt.bind("mousedown", function (event) {
+				ngelt.bind("mousedown", function (event) {
 					scope.$apply(function () {
-						scope.ctrl.mousedown(event);
+						ctrl.mousedown(event);
 					});
 				});
 				ng.element(document).bind("mouseup", function (event) {
-					scope.$apply(function () {
-						scope.ctrl.mouseup(event, elt);
-					});
+					ctrl.ngelt.attr('drag', null); // fin du mode drag&drop (eventuellement)
 				});
 				ng.element(document).bind("mousemove", function (event) {
 					scope.$apply(function () {
-						scope.ctrl.mousemove(event, elt);
+						ctrl.mousemove(event);
 					});
 				});
 			}
@@ -87,193 +75,233 @@ require("./infinityscroll.css");
 	}
 	function InfinityScrollCtrl($timeout, $scope) {
 		var ctrl = this;
-		ctrl.getRange = function () {
-			return "[" + Math.ceil($scope.ngBegin + 1) + "-" + Math.ceil($scope.ngBegin + Math.min($scope.ngLimit, $scope.total)) + "]";
+		ctrl.delta;
+		ctrl.ngelt; // le composant lui meme
+		ctrl.scrollbarArea = {}; // la zone de la scrollbar
+		ctrl.area = {}; // la zone deu composant
+		ctrl.getInfos = function () {
+			return "[" + Math.ceil($scope.ngBegin + 1) + "-" + Math.ceil($scope.ngBegin + Math.min($scope.ngLimit, $scope.total)) + "]/" + $scope.total;
 		};
-		ctrl.posY = 0; // position en % du grabber 
-		ctrl.sizeY = 100; // la taille en % du grabber
+		ctrl.cursorPos = 0; // position en % du curseur 
+		ctrl.cursorSize = 100; // la taille en % du curseur
 		ctrl.onscroll = false; // ca bouge, on affiche l'infobule
-		ctrl.ondrag = false; // on passe en mode drag&drop du grabber
 
-		ctrl.wheel = wheel; // gestion de la roulette
-		ctrl.mouseover = mouseover; 
+		ctrl.wheel = wheel; // gestion de la molette
 		ctrl.mousemove = mousemove;
-		ctrl.mouseout = mouseout;
 		ctrl.mousedown = mousedown;
-		ctrl.mouseup = mouseup;
 		ctrl.click = click;
+		ctrl.resize = resize;
 
-		function mousemove(event, ngelt) {
-			if(!ctrl.ondrag) return;
+		ctrl.computeAreas = computeAreas;
+		ctrl.updateTotal = updateTotal;
+		ctrl.updateLimit = updateLimit;
+		ctrl.defineInitialValues = defineInitialValues;
+		
+		/**
+		 * Le nombre d'items a changer
+		 */
+		function updateTotal() {
+			updateNgBegin(0);
+			ctrl.cursorPos = moveCursor(0);
+			computeLimit();
+			ctrl.cursorSize = computeHeightGrabber();
+		}
+		/**
+		 * La limit a ete mis a jour
+		 */
+		function updateLimit() {
+			computeLimit();
+			ctrl.cursorSize = computeHeightGrabber();
+			var cursorPos = ($scope.ngBegin * 100) / ($scope.total - $scope.ngLimit);
+			ctrl.cursorPos = moveCursor(cursorPos);
+		}
+		/**
+		 * 
+		 */
+		function defineInitialValues() {
+			$scope.ngBegin = 0;
+			$scope.ngLimit = $scope.ngLimit | 20;
+			ctrl.delta = Math.ceil($scope.ngLimit / 2);
+		}
+		/**
+		 * La fenetre a ete redimentionné
+		 */
+		var resizeTimer = null;
+		function resize() {
+			if (resizeTimer) {
+				$timeout.cancel(resizeTimer);
+			}
+			resizeTimer = $timeout(function (s) {
+				computeLimit();
+				computeAreas();
+			}, 200, true, $scope);
+		}
+		/**
+		 * Calcul des aires
+		 */
+		function computeAreas() {
+			var rect = ctrl.ngelt.get(0).getClientRects()[0];
+			ctrl.area = rect;
+			// zone de la scrollbar
+			var w = $scope.scrollbarSize | 4;
+			ctrl.scrollbarArea = {
+				x: rect.right - w, y: rect.top,
+				left: rect.right - w, right: rect.right,
+				width: w, height: rect.height,
+				top: rect.top, bottom: rect.bottom
+			};
+		}
+		/**
+		 * la souris bouge au dessus du composant
+		 * @param {jqEvent} event
+		 */
+		function mousemove(event) {
 			event.stopImmediatePropagation();
 			event.stopPropagation();
 			event.preventDefault();
 			var m = getMousePosition(event);
-			var rect = getRectArea(ngelt.get(0));
-			var onePercent = rect.height / 100;
-			var percentY = (m.y - rect.top) / onePercent;
-			ctrl.posY = moveGrabber($timeout, $scope, ngelt, percentY);
-			computeBeginFromPosY($scope, ctrl.posY);
+			if (!isDragMode()) { 
+				ctrl.ngelt.attr('hover', null);
+				if (isInGrabber(m.x, m.y)) { // la souris est au dessus du curseur
+					ctrl.ngelt.attr('hover', 'hover');
+				}
+			} else { // on est en mode drag&drop
+				var onePercent = ctrl.scrollbarArea.height / 100;
+				var percentY = (m.y - ctrl.scrollbarArea.top) / onePercent;
+				ctrl.cursorPos = moveCursor(percentY);
+				computeBeginFromCursor(ctrl.cursorPos);
+			}
 		}
 		function mousedown(event) {
-			var elt = event.currentTarget;
-			var ngelt = ng.element(elt);
 			var m = getMousePosition(event);
-			if (isInScrollbar(elt, m.x, m.y)) { // on a clicke dans scrollable
-				if (isInGrabber(elt, m.x, m.y)) {
-					ctrl.ondrag = true;
-					console.log("start drag");
-					ngelt.attr('drag', 'drag');
+			if (isInScrollbar(m.x, m.y)) { // on a click dans scrollable
+				if (isInGrabber(m.x, m.y)) { // on a click sur le curseur
+					ctrl.ngelt.attr('drag', 'drag');
 				}
 			}
 		}
-		function mouseup(event, ngelt) {
-			ngelt.attr('drag', null);
-			ctrl.ondrag = false;
-		}
-		function mouseout(event) {
-			var elt = event.currentTarget;
-			ng.element(elt).attr('hover', null);
-		}
-		function mouseover(event) {
-			var elt = event.currentTarget;
-			var ngelt = ng.element(elt);
-			var m = getMousePosition(event);
-			ngelt.attr('hover', null);
-			if (isInGrabber(elt, m.x, m.y)) {
-				ngelt.attr('hover', 'hover');
-			}
-		}
 		function click(event) {
-			if(ctrl.ondrag) return;
-			var elt = event.currentTarget;
-			var ngelt = ng.element(elt);
-			var rect = getRectArea(elt);
+			if (isDragMode())
+				return;
+			var rect = ctrl.scrollbarArea;
 			var m = getMousePosition(event);
-			if (isInScrollbar(elt, m.x, m.y)) { // on a clicke dans scrollable
-				if (!isInGrabber(elt, m.x, m.y)) {
+			if (isInScrollbar(m.x, m.y)) { // on a clicke dans scrollable
+				if (!isInGrabber(m.x, m.y)) {
 					var onePercent = rect.height / 100;
 					var percentY = (m.y - rect.top) / onePercent;
-					ctrl.posY = moveGrabber($timeout, $scope, ngelt, percentY);
-					computeBeginFromPosY($scope, ctrl.posY);
+					ctrl.cursorPos = moveCursor(percentY);
+					computeBeginFromCursor(ctrl.cursorPos);
 				}
 			}
 		}
 		function wheel(event) {
 			manageWheelHandler(event);
-			var elt = ng.element(event.currentTarget);
-			computeY($scope, elt);
-			var posY = ($scope.ngBegin * 100) / ($scope.total - $scope.ngLimit);
-			ctrl.posY = moveGrabber($timeout, $scope, elt, posY);
+			ctrl.cursorSize = computeHeightGrabber();
+			var cursorPos = ($scope.ngBegin * 100) / ($scope.total - $scope.ngLimit);
+			ctrl.cursorPos = moveCursor(cursorPos);
 		}
 		function manageWheelHandler(event) {
-			if (event.originalEvent.deltaY < 0) {
-				moveWindowToUp();
-			} else {
-				moveWindowToDown();
+			if (event.originalEvent.deltaY < 0 && $scope.ngBegin > 0) {
+				updateNgBegin(Math.max($scope.ngBegin - SCROLLBY, 0));
+			} else if (event.originalEvent.deltaY >= 0 && $scope.ngBegin + $scope.ngLimit < $scope.total) {
+				updateNgBegin(Math.min($scope.ngBegin + SCROLLBY, $scope.total - $scope.ngLimit));
 			}
 		}
-		function moveWindowToUp() {
-			if ($scope.ngBegin > 0) {
-				$scope.ngBegin = Math.max($scope.ngBegin - SCROLLBY, 0);
-			}
+		function isDragMode() {
+			return ctrl.ngelt.attr('drag') === 'drag';
 		}
-		function moveWindowToDown() {
-			if ($scope.ngBegin + $scope.ngLimit < $scope.total) {
-				$scope.ngBegin = Math.min($scope.ngBegin + SCROLLBY, $scope.total - $scope.ngLimit);
-			}
+		function updateNgBegin(val) {
+			$scope.ngBegin = val;
 		}
-		function isInScrollbar(elt, x, y) {
-			var rect = getRectArea(elt);
+		function isInScrollbar(x, y) {
+			var elt = ctrl.ngelt.get(0);
+			var rect = ctrl.scrollbarArea;
 			var element = document.elementFromPoint(x, y);
 			return element === elt && x >= rect.x; // on est au dessus de la scrollbar
 
 		}
-		function isInGrabber(elt, x, y) {
-			if (isInScrollbar(elt, x, y)) {
-				var rect = getRectArea(elt);
-				var start = rect.y + getGrabberOffset(rect.height, ctrl.sizeY, ctrl.posY);
-				var end = start + getGrabberHeight(rect.height, ctrl.sizeY, ctrl.posY);
+		function isInGrabber(x, y) {
+			if (isInScrollbar(x, y)) {
+				var rect = ctrl.scrollbarArea;
+				var start = rect.y + getGrabberOffset(ctrl.cursorSize, ctrl.cursorPos);
+				var end = start + getGrabberHeight(ctrl.cursorSize);
 				return y >= start && y <= end;
 			}
 			return false;
 		}
-		function getRectArea(elt) {
-			var rect = elt.getClientRects()[0];
-			// zone de la scrollbar
-			var w = $scope.width | 4;
-			rect.x = rect.right - w;
-			rect.y = rect.top;
-			rect.left = rect.right - w;
-			rect.width = w;
-			return rect;
-		}
-	}
-	var withTD = false;
-	function computeLimit($timeout, scope, elt) {
-		scope.ngBegin = 0;
-		var htmlElt = elt.get(0);
-		var rect = htmlElt.getClientRects()[0];
-		var y = rect.bottom - 2;
-		var x = rect.left + 2;
-		var element = document.elementFromPoint(x, y);
-		if (element === htmlElt) { // no TD
-			if (!withTD) {
-				if (scope.total > scope.ngLimit) {
-					scope.ngLimit = scope.ngLimit + 1;
-					withTD = false;
-				}
+		function computeLimit() {
+			var element = document.elementFromPoint(ctrl.area.left + 2, ctrl.area.bottom - 2);
+			if (!element) {
+				return;
 			}
-		} else { // TD
-			scope.ngLimit = scope.ngLimit - 1;
-			withTD = true;
+			if($scope.total) {
+				var d = 0;
+				if (element.nodeName === NODENAME) { // pas d'item en bas du tableau
+					if ($scope.total > $scope.ngLimit) {
+						d = computeDelta(ctrl.delta < 0);
+					}
+				} else { // TD
+					d = computeDelta(ctrl.delta > 0);
+				}
+				d = (d>1)?Math.ceil(d):Math.floor(d);
+				ctrl.delta = d;
+				$scope.ngLimit = $scope.ngLimit + ctrl.delta;
+			}
 		}
-		computeY(scope, elt);
-		var posY = (scope.ngBegin * 100) / (scope.total - scope.ngLimit);
-		scope.ctrl.posY = moveGrabber($timeout, scope, elt, posY);
-	}
-	function computeBeginFromPosY(scope, posY) {
-		scope.ngBegin = (posY * (scope.total - scope.ngLimit)) / 100;
-	}
-	function computeY(scope, elt) {
-		scope.ctrl.sizeY = Math.min(Math.max((scope.ngLimit / scope.total) * 100, 2), 100);
-		var w = scope.width | 4;
-		var rect = elt.get(0).getClientRects()[0];
-		elt.css({'background-size': w + 'px ' + getGrabberHeight(rect.height, scope.ctrl.sizeY, scope.ctrl.posY) + 'px'});
-	}
-	var scrollTimer = null;
-	function moveGrabber($timeout, scope, elt, posY) {
-		if (scrollTimer) {
-			$timeout.cancel(scrollTimer);
+		function computeDelta(change) {
+			if (change) {
+				return -(ctrl.delta / 2);
+			} else {
+				return ctrl.delta;
+			}
 		}
-		scope.ctrl.onscroll = true;
-		var grabberY = Math.max(posY, 0);
-		var rect = elt.get(0).getClientRects()[0];
-		elt.css({'background-position': 'right ' + getGrabberOffset(rect.height, scope.ctrl.sizeY, grabberY) + 'px'});
-		scrollTimer = $timeout(function (c) {
-			c.onscroll = false;
-		}, scope.showInfoDelay || 1000, true, scope.ctrl);
-		return grabberY;
-	}
-	/**
-	 * Calcul la hauteur du grabber
-	 * @param {type} height 
-	 * @param {type} percentSize
-	 * @param {type} percentPos
-	 * @returns {Number}
-	 */
-	function getGrabberHeight(height, percentSize, percentPos) {
-		return height * percentSize / (100 + percentSize);
-	}
-	/**
-	 * Calcul la position y du grabber
-	 * @param {type} height
-	 * @param {type} percentSize
-	 * @param {type} percentPos
-	 * @returns {Number}
-	 */
-	function getGrabberOffset(height, percentSize, percentPos) {
-		return height * percentPos / (100 + percentSize);
+		function computeHeightGrabber() {
+			var heightGrabber = Math.min(Math.max(($scope.ngLimit / $scope.total) * 100, 2), 100);
+			var w = $scope.scrollbarSize | 4;
+			ctrl.ngelt.css({'background-size': w + 'px ' + getGrabberHeight(heightGrabber) + 'px'});
+			return heightGrabber;
+		}
+		var scrollTimer = null;
+		function moveCursor(cursorPos) {
+			if (scrollTimer) {
+				$timeout.cancel(scrollTimer);
+			}
+			ctrl.onscroll = $scope.total;
+			var grabberY = Math.min(Math.max(cursorPos, 0), 100);
+			ctrl.ngelt.css({'background-position': 'right ' + getGrabberOffset(ctrl.cursorSize, grabberY) + 'px'});
+			scrollTimer = $timeout(function (c) {
+				c.onscroll = false;
+			}, $scope.showInfoDelay || 1000, true, ctrl);
+			return grabberY;
+		}
+		/**
+		 * 
+		 * @param {type} cursorPos : la position en % du curseur
+		 */
+		function computeBeginFromCursor(cursorPos) {
+			var begin = (cursorPos * ($scope.total - $scope.ngLimit)) / 100;
+			if ((begin + $scope.ngLimit) * 100 / $scope.total > 100) {
+				begin = 100 - $scope.ngLimit * 100 / $scope.total;
+			}
+			updateNgBegin(begin);
+		}
+		/**
+		 * Calcul la position y du curseur en px
+		 * @param {type} percentSize
+		 * @param {type} percentPos
+		 * @returns {Number}
+		 */
+		function getGrabberOffset(percentSize, percentPos) {
+			return ctrl.scrollbarArea.height * percentPos / (100 + percentSize);
+		}
+		/**
+		 * Calcul la hauteur du grabber
+		 * @param {type} percentSize
+		 * @returns {Number}
+		 */
+		function getGrabberHeight(percentSize) {
+			return ctrl.scrollbarArea.height * percentSize / 100;
+		}
 	}
 	/**
 	 * Position dela souris

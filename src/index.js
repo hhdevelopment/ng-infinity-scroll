@@ -11,8 +11,16 @@ import './infinityscroll.js';
 	ng.module('app', ['infinity.scroll']).controller('AppCtrl', AppCtrl);
 	function AppCtrl() {
 		var ctrl = this;
-		ctrl.items = __.range(200);
-		ctrl.limit = 25;
+		ctrl.categories = [{'name':'Directory 1', nb:5},{'name':'Directory 2', nb:200},{'name':'Directory 3', nb:20},{'name':'Directory 4', nb:0}];
+		ctrl.selectedCategory = null;
+		ctrl.selectCategory = selectCategory;
+		ctrl.items = null;
+		ctrl.limit = 10;
 		ctrl.begin = 0;
+		
+		function selectCategory(cat) {
+			ctrl.selectedCategory = cat;
+			ctrl.items = __.range(cat.nb);
+		}
 	}
 })(angular, _);

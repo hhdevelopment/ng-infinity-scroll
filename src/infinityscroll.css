@@ -18,9 +18,21 @@ infinity-scroll[hover] {
 infinity-scroll[drag] {
 	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gEZDxAQ2wBkhAAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAADElEQVQI12OorKwEAALaAWyeCJ/eAAAAAElFTkSuQmCC');
 }
-infinity-scroll span.badge {
-    position:absolute;
-    bottom:10px;
-    right:10px;
-	 z-index: 1000;
+infinity-scroll span.infos-crolling {
+	display: inline-block;
+	position:absolute;
+	bottom:10px;
+	right:10px;
+	z-index: 1000;
+	min-width: 10px;
+	padding: 3px 7px;
+	font-size: 12px;
+	font-weight: bold;
+	line-height: 1;
+	color: #fff;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: middle;
+	background-color: #777;
+	border-radius: 10px;
 }
