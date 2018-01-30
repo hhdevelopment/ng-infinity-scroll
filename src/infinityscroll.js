@@ -1,4 +1,3 @@
-require("./infinityscroll.html");
 require("./infinityscroll.css");
 (function (ng) {
 	var MODULENAME = 'infinity.scroll';
@@ -11,7 +10,7 @@ require("./infinityscroll.css");
 	function InfinityScroll($timeout) {
 		return {
 			restrict: 'E',
-			templateUrl: "infinityscroll.html",
+			template: "<span ng-show='ctrl.onscroll' class='infos-crolling'>{{ctrl.getInfos()}}</span><ng-transclude></ng-transclude>",
 			controller: InfinityScrollCtrl,
 			controllerAs: 'ctrl',
 			transclude: true,
@@ -102,6 +101,7 @@ require("./infinityscroll.css");
 		 */
 		function updateTotal() {
 			updateNgBegin(0);
+			ctrl.delta = $scope.ngLimit;
 			ctrl.cursorPos = moveCursor(0);
 			computeLimit();
 			ctrl.cursorSize = computeHeightGrabber();
@@ -124,7 +124,7 @@ require("./infinityscroll.css");
 			ctrl.delta = Math.ceil($scope.ngLimit / 2);
 		}
 		/**
-		 * La fenetre a ete redimentionné
+		 * La fenetre a ete redimentionn�
 		 */
 		var resizeTimer = null;
 		function resize() {
@@ -156,16 +156,19 @@ require("./infinityscroll.css");
 		 * @param {jqEvent} event
 		 */
 		function mousemove(event) {
-			event.stopImmediatePropagation();
-			event.stopPropagation();
-			event.preventDefault();
 			var m = getMousePosition(event);
 			if (!isDragMode()) { 
 				ctrl.ngelt.attr('hover', null);
 				if (isInGrabber(m.x, m.y)) { // la souris est au dessus du curseur
+					event.stopImmediatePropagation();
+					event.stopPropagation();
+					event.preventDefault();
 					ctrl.ngelt.attr('hover', 'hover');
 				}
 			} else { // on est en mode drag&drop
+				event.stopImmediatePropagation();
+				event.stopPropagation();
+				event.preventDefault();
 				var onePercent = ctrl.scrollbarArea.height / 100;
 				var percentY = (m.y - ctrl.scrollbarArea.top) / onePercent;
 				ctrl.cursorPos = moveCursor(percentY);
@@ -175,6 +178,9 @@ require("./infinityscroll.css");
 		function mousedown(event) {
 			var m = getMousePosition(event);
 			if (isInScrollbar(m.x, m.y)) { // on a click dans scrollable
+				event.stopImmediatePropagation();
+				event.stopPropagation();
+				event.preventDefault();
 				if (isInGrabber(m.x, m.y)) { // on a click sur le curseur
 					ctrl.ngelt.attr('drag', 'drag');
 				}
