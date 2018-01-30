@@ -129,8 +129,8 @@ require("./infinityscroll.css");
 			}
 			resizeTimer = $timeout(function (s) {
 				ctrl.delta = $scope.ngLimit;
-				computeLimit();
 				computeAreas();
+				computeLimit();
 			}, 200, true, $scope);
 		}
 		/**
