@@ -38,11 +38,7 @@ require("./infinityscroll.css");
 						watcherClear();
 					});
 				});
-				$(window).on('resize', function (event) {
-					scope.$apply(function () {
-						ctrl.resize();
-					});
-				});
+				$(window).on('resize', ctrl.resize);
 				ngelt.bind("wheel", function (event) {
 					scope.$apply(function () {
 						ctrl.wheel(event);
