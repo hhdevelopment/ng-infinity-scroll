@@ -1,4 +1,3 @@
-require("./infinityscroll.html");
 require("./infinityscroll.css");
 (function (ng) {
 	var MODULENAME = 'infinity.scroll';
@@ -11,7 +10,7 @@ require("./infinityscroll.css");
 	function InfinityScroll($timeout) {
 		return {
 			restrict: 'E',
-			templateUrl: "infinityscroll.html",
+			template: "<span ng-show='ctrl.onscroll' class='infos-crolling'>{{ctrl.getInfos()}}</span><ng-transclude></ng-transclude>",
 			controller: InfinityScrollCtrl,
 			controllerAs: 'ctrl',
 			transclude: true,
@@ -124,7 +123,7 @@ require("./infinityscroll.css");
 			ctrl.delta = Math.ceil($scope.ngLimit / 2);
 		}
 		/**
-		 * La fenetre a ete redimentionnÃ©
+		 * La fenetre a ete redimentionné
 		 */
 		var resizeTimer = null;
 		function resize() {
@@ -156,16 +155,19 @@ require("./infinityscroll.css");
 		 * @param {jqEvent} event
 		 */
 		function mousemove(event) {
-			event.stopImmediatePropagation();
-			event.stopPropagation();
-			event.preventDefault();
 			var m = getMousePosition(event);
 			if (!isDragMode()) { 
 				ctrl.ngelt.attr('hover', null);
 				if (isInGrabber(m.x, m.y)) { // la souris est au dessus du curseur
+					event.stopImmediatePropagation();
+					event.stopPropagation();
+					event.preventDefault();
 					ctrl.ngelt.attr('hover', 'hover');
 				}
 			} else { // on est en mode drag&drop
+				event.stopImmediatePropagation();
+				event.stopPropagation();
+				event.preventDefault();
 				var onePercent = ctrl.scrollbarArea.height / 100;
 				var percentY = (m.y - ctrl.scrollbarArea.top) / onePercent;
 				ctrl.cursorPos = moveCursor(percentY);
