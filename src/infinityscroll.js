@@ -101,6 +101,7 @@ require("./infinityscroll.css");
 		 */
 		function updateTotal() {
 			updateNgBegin(0);
+			ctrl.delta = $scope.ngLimit;
 			ctrl.cursorPos = moveCursor(0);
 			computeLimit();
 			ctrl.cursorSize = computeHeightGrabber();
