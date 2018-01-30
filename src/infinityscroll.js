@@ -123,7 +123,7 @@ require("./infinityscroll.css");
 			ctrl.delta = Math.ceil($scope.ngLimit / 2);
 		}
 		/**
-		 * La fenetre a ete redimentionné
+		 * La fenetre a ete redimentionnï¿½
 		 */
 		var resizeTimer = null;
 		function resize() {
@@ -177,6 +177,9 @@ require("./infinityscroll.css");
 		function mousedown(event) {
 			var m = getMousePosition(event);
 			if (isInScrollbar(m.x, m.y)) { // on a click dans scrollable
+				event.stopImmediatePropagation();
+				event.stopPropagation();
+				event.preventDefault();
 				if (isInGrabber(m.x, m.y)) { // on a click sur le curseur
 					ctrl.ngelt.attr('drag', 'drag');
 				}
