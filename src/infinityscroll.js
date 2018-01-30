@@ -38,11 +38,7 @@ require("./infinityscroll.css");
 						watcherClear();
 					});
 				});
-				$(window).on('resize', function (event) {
-					scope.$apply(function () {
-						ctrl.resize();
-					});
-				});
+				$(window).on('resize', ctrl.resize);
 				ngelt.bind("wheel", function (event) {
 					scope.$apply(function () {
 						ctrl.wheel(event);
@@ -132,8 +128,9 @@ require("./infinityscroll.css");
 				$timeout.cancel(resizeTimer);
 			}
 			resizeTimer = $timeout(function (s) {
-				computeLimit();
+				ctrl.delta = $scope.ngLimit;
 				computeAreas();
+				computeLimit();
 			}, 200, true, $scope);
 		}
 		/**
@@ -250,7 +247,11 @@ require("./infinityscroll.css");
 					d = computeDelta(ctrl.delta > 0);
 				}
 				d = (d>1)?Math.ceil(d):Math.floor(d);
-				ctrl.delta = d;
+				if($scope.ngLimit + d < 0) {
+					ctrl.delta = $scope.ngLimit;
+				} else {
+					ctrl.delta = d;
+				}
 				$scope.ngLimit = $scope.ngLimit + ctrl.delta;
 			}
 		}
