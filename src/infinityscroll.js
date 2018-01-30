@@ -247,7 +247,11 @@ require("./infinityscroll.css");
 					d = computeDelta(ctrl.delta > 0);
 				}
 				d = (d>1)?Math.ceil(d):Math.floor(d);
-				ctrl.delta = d;
+				if($scope.ngLimit + d < 0) {
+					ctrl.delta = $scope.ngLimit;
+				} else {
+					ctrl.delta = d;
+				}
 				$scope.ngLimit = $scope.ngLimit + ctrl.delta;
 			}
 		}
