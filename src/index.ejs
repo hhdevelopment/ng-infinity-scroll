@@ -23,7 +23,7 @@
 				</div>
 				<div class="col-xs-8">
 					<infinity-scroll scrollbar-size="12" show-info-delay="2000" total="ctrl.items.length" 
-										  ng-begin="ctrl.begin" ng-limit="ctrl.limit"
+										  ng-begin="begin" ng-limit="limit"
 										  style="border:solid 1px black; height: 300px">
 						<table class="table table-hover table-striped">
 							<thead>
@@ -37,7 +37,7 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr ng-repeat="item in ctrl.items| limitTo:ctrl.limit:ctrl.begin">
+								<tr ng-repeat="item in ctrl.items| limitTo:limit:begin">
 									<td ng-bind="item"></td><td><span class="glyphicon glyphicon-user"></span></td><td>Mark</td><td>Otto</td><td>@mdo</td><td><span class="glyphicon glyphicon-adjust"></span></td>
 								</tr>
 							</tbody>

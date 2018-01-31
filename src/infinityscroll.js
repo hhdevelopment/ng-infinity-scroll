@@ -18,6 +18,7 @@ require("./infinityscroll.css");
 				'total': '<',
 				'scrollbarSize': '<',
 				'showInfoDelay': '<',
+				'delay': '<',
 				'ngBegin': '=',
 				'ngLimit': '='
 			}, link: function (scope, ngelt, attrs) {
@@ -31,42 +32,45 @@ require("./infinityscroll.css");
 					s.ctrl.updateTotal();
 				}, false));
 				watcherClears.push(scope.$watch('ngLimit', function (v1, v2, s) {
-					$timeout(s.ctrl.updateLimit, 300, true);
+					$timeout(s.ctrl.updateLimit, s.delay || 300, true);
 				}, false));
 				scope.$on('$destroy', function () {
 					watcherClears.forEach(function (watcherClear) {
 						watcherClear();
 					});
 				});
-				$(window).on('resize', ctrl.resize);
-				ngelt.bind("wheel", function (event) {
-					scope.$apply(function () {
-						ctrl.wheel(event);
-					});
-				});
-				ngelt.bind("click", function (event) {
-					scope.$apply(function () {
-						ctrl.click(event);
-					});
-				});
-				ngelt.bind("mouseout", function (event) {
-					ctrl.ngelt.attr('hover', null); // fin du survol (eventuellement)
-				});
-				ngelt.bind("mousedown", function (event) {
-					scope.$apply(function () {
-						ctrl.mousedown(event);
-					});
-				});
-				ng.element(document).bind("mouseup", function (event) {
-					ctrl.ngelt.attr('drag', null); // fin du mode drag&drop (eventuellement)
-				});
-				ng.element(document).bind("mousemove", function (event) {
-					scope.$apply(function () {
-						ctrl.mousemove(event);
-					});
-				});
+				addEventListeners(ctrl, scope, ngelt);
 			}
 		};
+	}
+	function addEventListeners(ctrl, scope, ngelt) {
+		$(window).on('resize', ctrl.resize);
+		ngelt.bind("wheel", function (event) {
+			scope.$apply(function () {
+				ctrl.wheel(event);
+			});
+		});
+		ngelt.bind("click", function (event) {
+			scope.$apply(function () {
+				ctrl.click(event);
+			});
+		});
+		ngelt.bind("mouseout", function (event) {
+			ctrl.ngelt.attr('hover', null); // fin du survol (eventuellement)
+		});
+		ngelt.bind("mousedown", function (event) {
+			scope.$apply(function () {
+				ctrl.mousedown(event);
+			});
+		});
+		ng.element(document).bind("mouseup", function (event) {
+			ctrl.ngelt.attr('drag', null); // fin du mode drag&drop (eventuellement)
+		});
+		ng.element(document).bind("mousemove", function (event) {
+			scope.$apply(function () {
+				ctrl.mousemove(event);
+			});
+		});
 	}
 	function InfinityScrollCtrl($timeout, $scope) {
 		var ctrl = this;
@@ -91,22 +95,28 @@ require("./infinityscroll.css");
 		ctrl.updateTotal = updateTotal;
 		ctrl.updateLimit = updateLimit;
 		ctrl.defineInitialValues = defineInitialValues;
-		
+
 		/**
 		 * Le nombre d'items a changer
 		 */
 		function updateTotal() {
-			updateNgBegin(0);
-			ctrl.delta = $scope.ngLimit;
+			$scope.ngBegin = 0;
 			ctrl.cursorPos = moveCursor(0);
-			computeLimit();
-			ctrl.cursorSize = computeHeightGrabber();
+			if (!$scope.total) {
+				ctrl.cursorSize = computeHeightGrabber();
+				return;
+			}
+			$scope.ngLimit = 1;
 		}
 		/**
 		 * La limit a ete mis a jour
 		 */
 		function updateLimit() {
-			computeLimit();
+			if ($scope.ngLimit === 1) {
+				initLimit();
+			} else {
+				adjustLimit();
+			}
 			ctrl.cursorSize = computeHeightGrabber();
 			var cursorPos = ($scope.ngBegin * 100) / ($scope.total - $scope.ngLimit);
 			ctrl.cursorPos = moveCursor(cursorPos);
@@ -130,7 +140,7 @@ require("./infinityscroll.css");
 			resizeTimer = $timeout(function (s) {
 				ctrl.delta = $scope.ngLimit;
 				computeAreas();
-				computeLimit();
+				adjustLimit();
 			}, 200, true, $scope);
 		}
 		/**
@@ -154,7 +164,7 @@ require("./infinityscroll.css");
 		 */
 		function mousemove(event) {
 			var m = getMousePosition(event);
-			if (!isDragMode()) { 
+			if (!isDragMode()) {
 				ctrl.ngelt.attr('hover', null);
 				if (isInGrabber(m.x, m.y)) { // la souris est au dessus du curseur
 					event.stopImmediatePropagation();
@@ -205,16 +215,13 @@ require("./infinityscroll.css");
 		}
 		function manageWheelHandler(event) {
 			if (event.originalEvent.deltaY < 0 && $scope.ngBegin > 0) {
-				updateNgBegin(Math.max($scope.ngBegin - SCROLLBY, 0));
+				$scope.ngBegin = Math.max($scope.ngBegin - SCROLLBY, 0);
 			} else if (event.originalEvent.deltaY >= 0 && $scope.ngBegin + $scope.ngLimit < $scope.total) {
-				updateNgBegin(Math.min($scope.ngBegin + SCROLLBY, $scope.total - $scope.ngLimit));
+				$scope.ngBegin = Math.min($scope.ngBegin + SCROLLBY, $scope.total - $scope.ngLimit);
 			}
 		}
 		function isDragMode() {
 			return ctrl.ngelt.attr('drag') === 'drag';
-		}
-		function updateNgBegin(val) {
-			$scope.ngBegin = val;
 		}
 		function isInScrollbar(x, y) {
 			var elt = ctrl.ngelt.get(0);
@@ -232,34 +239,22 @@ require("./infinityscroll.css");
 			}
 			return false;
 		}
-		function computeLimit() {
-			var element = document.elementFromPoint(ctrl.area.left + 2, ctrl.area.bottom - 2);
-			if (!element) {
-				return;
-			}
-			if($scope.total) {
-				var d = 0;
-				if (element.nodeName === NODENAME) { // pas d'item en bas du tableau
-					if ($scope.total > $scope.ngLimit) {
-						d = computeDelta(ctrl.delta < 0);
-					}
-				} else { // TD
-					d = computeDelta(ctrl.delta > 0);
-				}
-				d = (d>1)?Math.ceil(d):Math.floor(d);
-				if($scope.ngLimit + d < 0) {
-					ctrl.delta = $scope.ngLimit;
-				} else {
-					ctrl.delta = d;
-				}
-				$scope.ngLimit = $scope.ngLimit + ctrl.delta;
+		function initLimit() {
+			var trs = ctrl.ngelt.get(0).getElementsByTagName('tr');
+			if (trs.length) {
+				var height = trs[trs.length - 1].getClientRects()[0].height;
+				$scope.ngLimit = Math.floor(ctrl.area.height / height);
 			}
 		}
-		function computeDelta(change) {
-			if (change) {
-				return -(ctrl.delta / 2);
-			} else {
-				return ctrl.delta;
+		function adjustLimit() {
+			if ($scope.total) {
+				var element = document.elementFromPoint(ctrl.area.left + 2, ctrl.area.bottom - 2);
+				if (!element) {
+					return;
+				}
+				if (element.nodeName !== NODENAME) { // item en bas du tableau
+					$scope.ngLimit -= 1;
+				}
 			}
 		}
 		function computeHeightGrabber() {
@@ -290,7 +285,7 @@ require("./infinityscroll.css");
 			if ((begin + $scope.ngLimit) * 100 / $scope.total > 100) {
 				begin = 100 - $scope.ngLimit * 100 / $scope.total;
 			}
-			updateNgBegin(begin);
+			$scope.ngBegin = begin;
 		}
 		/**
 		 * Calcul la position y du curseur en px
