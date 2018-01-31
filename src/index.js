@@ -15,6 +15,7 @@ import './infinityscroll.js';
 		ctrl.selectedCategory = null;
 		ctrl.selectCategory = selectCategory;
 		ctrl.items = null;
+		ctrl.height = 300;
 		
 		function selectCategory(cat) {
 			ctrl.selectedCategory = cat;
