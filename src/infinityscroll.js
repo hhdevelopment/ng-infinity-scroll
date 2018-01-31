@@ -19,6 +19,7 @@ require("./infinityscroll.css");
 				'scrollbarSize': '<',
 				'showInfoDelay': '<',
 				'delay': '<',
+				'height': '<',
 				'ngBegin': '=',
 				'ngLimit': '='
 			}, link: function (scope, ngelt, attrs) {
@@ -28,6 +29,9 @@ require("./infinityscroll.css");
 				ctrl.computeAreas(); // calcule les rectangles des zones 
 				ctrl.defineInitialValues();
 				var watcherClears = [];
+				watcherClears.push(scope.$watch('height', function (v1, v2, s) {
+					s.ctrl.updateHeight();
+				}, false));
 				watcherClears.push(scope.$watch('total', function (v1, v2, s) {
 					s.ctrl.updateTotal();
 				}, false));
@@ -39,42 +43,12 @@ require("./infinityscroll.css");
 						watcherClear();
 					});
 				});
-				addEventListeners(ctrl, scope, ngelt);
+				ctrl.addEventListeners();
 			}
 		};
 	}
-	function addEventListeners(ctrl, scope, ngelt) {
-		$(window).on('resize', ctrl.resize);
-		ngelt.bind("wheel", function (event) {
-			scope.$apply(function () {
-				ctrl.wheel(event);
-			});
-		});
-		ngelt.bind("click", function (event) {
-			scope.$apply(function () {
-				ctrl.click(event);
-			});
-		});
-		ngelt.bind("mouseout", function (event) {
-			ctrl.ngelt.attr('hover', null); // fin du survol (eventuellement)
-		});
-		ngelt.bind("mousedown", function (event) {
-			scope.$apply(function () {
-				ctrl.mousedown(event);
-			});
-		});
-		ng.element(document).bind("mouseup", function (event) {
-			ctrl.ngelt.attr('drag', null); // fin du mode drag&drop (eventuellement)
-		});
-		ng.element(document).bind("mousemove", function (event) {
-			scope.$apply(function () {
-				ctrl.mousemove(event);
-			});
-		});
-	}
 	function InfinityScrollCtrl($timeout, $scope) {
 		var ctrl = this;
-		ctrl.delta;
 		ctrl.ngelt; // le composant lui meme
 		ctrl.scrollbarArea = {}; // la zone de la scrollbar
 		ctrl.area = {}; // la zone deu composant
@@ -85,17 +59,42 @@ require("./infinityscroll.css");
 		ctrl.cursorSize = 100; // la taille en % du curseur
 		ctrl.onscroll = false; // ca bouge, on affiche l'infobule
 
-		ctrl.wheel = wheel; // gestion de la molette
-		ctrl.mousemove = mousemove;
-		ctrl.mousedown = mousedown;
-		ctrl.click = click;
-		ctrl.resize = resize;
+		ctrl.addEventListeners = addEventListeners; // gestion de la molette
 
 		ctrl.computeAreas = computeAreas;
 		ctrl.updateTotal = updateTotal;
 		ctrl.updateLimit = updateLimit;
+		ctrl.updateHeight = updateHeight;
 		ctrl.defineInitialValues = defineInitialValues;
 
+		function addEventListeners() {
+			ctrl.ngelt.bind("wheel", function (event) {
+				$scope.$apply(function () {
+					wheel(event);
+				});
+			});
+			ctrl.ngelt.bind("click", function (event) {
+				$scope.$apply(function () {
+					click(event);
+				});
+			});
+			ctrl.ngelt.bind("mouseout", function (event) {
+				ctrl.ngelt.attr('hover', null); // fin du survol (eventuellement)
+			});
+			ctrl.ngelt.bind("mousedown", function (event) {
+				$scope.$apply(function () {
+					mousedown(event);
+				});
+			});
+			ng.element(document).bind("mouseup", function (event) {
+				ctrl.ngelt.attr('drag', null); // fin du mode drag&drop (eventuellement)
+			});
+			ng.element(document).bind("mousemove", function (event) {
+				$scope.$apply(function () {
+					mousemove(event);
+				});
+			});
+		}
 		/**
 		 * Le nombre d'items a changer
 		 */
@@ -127,20 +126,19 @@ require("./infinityscroll.css");
 		function defineInitialValues() {
 			$scope.ngBegin = 0;
 			$scope.ngLimit = $scope.ngLimit | 20;
-			ctrl.delta = Math.ceil($scope.ngLimit / 2);
 		}
 		/**
 		 * La fenetre a ete redimentionn�
 		 */
 		var resizeTimer = null;
-		function resize() {
+		function updateHeight() {
+			ctrl.ngelt.css('height', $scope.height)
 			if (resizeTimer) {
 				$timeout.cancel(resizeTimer);
 			}
 			resizeTimer = $timeout(function (s) {
-				ctrl.delta = $scope.ngLimit;
 				computeAreas();
-				adjustLimit();
+				initLimit();
 			}, 200, true, $scope);
 		}
 		/**
@@ -248,7 +246,7 @@ require("./infinityscroll.css");
 		}
 		function adjustLimit() {
 			if ($scope.total) {
-				var element = document.elementFromPoint(ctrl.area.left + 2, ctrl.area.bottom - 2);
+				var element = document.elementFromPoint(ctrl.area.left + 1, ctrl.area.bottom - 1);
 				if (!element) {
 					return;
 				}
