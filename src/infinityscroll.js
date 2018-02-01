@@ -3,6 +3,7 @@ require("./infinityscroll.css");
 	var MODULENAME = 'infinity.scroll';
 	var DIRECTIVENAME = 'infinityScroll';
 	var NODENAME = 'INFINITY-SCROLL';
+	var TAGNAME = 'infinity-scroll';
 	var SCROLLBY = 3;
 	'use strict';
 	ng.module(MODULENAME, []).directive(DIRECTIVENAME, InfinityScroll);
@@ -18,12 +19,16 @@ require("./infinityscroll.css");
 				'total': '<',
 				'scrollbarSize': '<',
 				'showInfoDelay': '<',
-				'delay': '<',
+				'debounce': '<',
+				'tagItems': '@',
 				'height': '<',
 				'ngBegin': '=',
 				'ngLimit': '='
 			}, link: function (scope, ngelt, attrs) {
 				ngelt.find('ng-transclude').css({'width': 'calc(100% - ' + (scope.scrollbarSize | 4) + 'px)'});
+				if(scope.height === undefined) {
+					scope.height = 300;
+				}
 				var ctrl = scope.ctrl;
 				ctrl.ngelt = ngelt; // on sauve l'element jquery
 				ctrl.computeAreas(); // calcule les rectangles des zones 
@@ -36,7 +41,10 @@ require("./infinityscroll.css");
 					s.ctrl.updateTotal();
 				}, false));
 				watcherClears.push(scope.$watch('ngLimit', function (v1, v2, s) {
-					$timeout(s.ctrl.updateLimit, s.delay || 300, true);
+					$timeout(s.ctrl.updateLimit, s.debounce || 300, true);
+				}, false));
+				watcherClears.push(scope.$watch('ngBegin', function (v1, v2, s) {
+					$timeout(s.ctrl.updateBegin, s.debounce || 300, true);
 				}, false));
 				scope.$on('$destroy', function () {
 					watcherClears.forEach(function (watcherClear) {
@@ -64,6 +72,7 @@ require("./infinityscroll.css");
 		ctrl.computeAreas = computeAreas;
 		ctrl.updateTotal = updateTotal;
 		ctrl.updateLimit = updateLimit;
+		ctrl.updateBegin = updateBegin;
 		ctrl.updateHeight = updateHeight;
 		ctrl.defineInitialValues = defineInitialValues;
 
@@ -121,6 +130,13 @@ require("./infinityscroll.css");
 			ctrl.cursorPos = moveCursor(cursorPos);
 		}
 		/**
+		 * begin a ete mis a jour
+		 */
+		function updateBegin() {
+			added = false;
+			adjustLimit();
+		}
+		/**
 		 * 
 		 */
 		function defineInitialValues() {
@@ -132,7 +148,7 @@ require("./infinityscroll.css");
 		 */
 		var resizeTimer = null;
 		function updateHeight() {
-			ctrl.ngelt.css('height', $scope.height)
+			ctrl.ngelt.css('height', $scope.height);
 			if (resizeTimer) {
 				$timeout.cancel(resizeTimer);
 			}
@@ -237,11 +253,16 @@ require("./infinityscroll.css");
 			}
 			return false;
 		}
+		var added = false;
 		function initLimit() {
-			var trs = ctrl.ngelt.get(0).getElementsByTagName('tr');
-			if (trs.length) {
-				var height = trs[trs.length - 1].getClientRects()[0].height;
-				$scope.ngLimit = Math.floor(ctrl.area.height / height);
+			added = false;
+			var items = ctrl.ngelt.get(0).getElementsByTagName(getTagItems());
+			if (items.length) {
+				var rects = items[items.length - 1].getClientRects();
+				if (rects && rects.length) {
+					var height = rects[0].height;
+					$scope.ngLimit = Math.floor(ctrl.area.height / height);
+				}
 			}
 		}
 		function adjustLimit() {
@@ -250,8 +271,21 @@ require("./infinityscroll.css");
 				if (!element) {
 					return;
 				}
-				if (element.nodeName !== NODENAME) { // item en bas du tableau
+				// on teste si l'element est enfant du composant
+				if (element.nodeName !== NODENAME && ctrl.ngelt.get(0).contains(element)) { // item en bas du tableau
 					$scope.ngLimit -= 1;
+				} else if(!added) { // pas d'item
+					added = true;
+					var items = ctrl.ngelt.get(0).getElementsByTagName(getTagItems());
+					if (items.length) {
+						var height = [].reduce.call(items, function (accu, item) {
+							return accu + item.getClientRects()[0].height;
+						}, 0);
+						var empty = ctrl.area.height - height;
+						var average = Math.floor(height / items.length);
+						var inc = Math.floor(empty / average);
+						$scope.ngLimit += inc;
+					}
 				}
 			}
 		}
@@ -301,6 +335,9 @@ require("./infinityscroll.css");
 		 */
 		function getGrabberHeight(percentSize) {
 			return ctrl.scrollbarArea.height * percentSize / 100;
+		}
+		function getTagItems() {
+			return $scope.tagItems || 'tr';
 		}
 	}
 	/**

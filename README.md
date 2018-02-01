@@ -1,45 +1,77 @@
-**Edit a file, create a new file, and clone from Bitbucket in under 2 minutes**
+**ng-infinity-scroll**
 
-When you're done, you can delete the content in this README and update the file with details for others getting started with your repository.
+ng-infinity-scroll is a directive for angular 1.x
 
-*We recommend that you open this README in another tab as you perform the tasks below. You can [watch our video](https://youtu.be/0ocf7u76WSo) for a full demo of all the steps in this tutorial. Open the video in a new tab to avoid leaving Bitbucket.*
+it allows to use angular directive *limitTo* synchronized with a scrollbar.
 
----
+It is very usefull to use thois directive when you try to show many row in the table for example.
 
-## Edit a file
+Define size of your table in pixel and infinity-scroll compute pertinent limit and manage begin variables.
 
-You’ll start by editing this README file to learn how to edit a file in Bitbucket.
-
-1. Click **Source** on the left side.
-2. Click the README.md link from the list of files.
-3. Click the **Edit** button.
-4. Delete the following text: *Delete this line to make a change to the README from Bitbucket.*
-5. After making your change, click **Commit** and then **Commit** again in the dialog. The commit page will open and you’ll see the change you just made.
-6. Go back to the **Source** page.
 
 ---
 
-## Create a file
-
-Next, you’ll add a new file to this repository.
-
-1. Click the **New file** button at the top of the **Source** page.
-2. Give the file a filename of **contributors.txt**.
-3. Enter your name in the empty file space.
-4. Click **Commit** and then **Commit** again in the dialog.
-5. Go back to the **Source** page.
-
-Before you move on, go ahead and explore the repository. You've already seen the **Source** page, but check out the **Commits**, **Branches**, and **Settings** pages.
+## Demo
 
 ---
 
-## Clone a repository
+## Installation
 
-Use these steps to clone from SourceTree, our client for using the repository command-line free. Cloning allows you to work on your files locally. If you don't yet have SourceTree, [download and install first](https://www.sourcetreeapp.com/). If you prefer to clone from the command line, see [Clone a repository](https://confluence.atlassian.com/x/4whODQ).
+Installation is easy with minimal dependencies - only the AngularJS
 
-1. You’ll see the clone button under the **Source** heading. Click that button.
-2. Now click **Check out in SourceTree**. You may need to create a SourceTree account or log in.
-3. When you see the **Clone New** dialog in SourceTree, update the destination path and name if you’d like to and then click **Clone**.
-4. Open the directory you just created to see your repository’s files.
+#### Install with NPM
 
-Now that you're more familiar with your Bitbucket repository, go ahead and add a new file locally. You can [push your change back to Bitbucket with SourceTree](https://confluence.atlassian.com/x/iqyBMg), or you can [add, commit,](https://confluence.atlassian.com/x/8QhODQ) and [push from the command line](https://confluence.atlassian.com/x/NQ0zDQ).
+```sh
+$ npm install ng-infinity-scroll
+```
+
+### Adding dependency to your project
+
+When you are done downloading all the dependencies and project files the only remaining part is to add dependencies on the `infinity.scroll` AngularJS module:
+
+```js
+require('./node_modules/ng-infinity-scroll/dist/infinityscroll.js');
+```
+
+```js
+angular.module('myModule', ['infinity.scroll']);
+```
+
+## Uses
+
+### HTML
+
+```html
+<infinity-scroll scrollbar-size="12" show-info-delay="2000" total="ctrl.items.length" 
+					ng-begin="begin" ng-limit="limit" height="ctrl.height"
+					style="border:solid 1px black">
+	<table class="table table-hover table-striped">
+		<thead>
+			<tr>
+				<th style="width:30px">First</th>
+				<th style="width:20px">2e</th>
+				<th>Third</th>
+				<th>Fourth</th>
+				<th style="width:50px">Last</th>
+				<th style="width:20px"></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="item in ctrl.items| limitTo:limit:begin">
+				<td ng-bind="item"></td><td><span class="glyphicon glyphicon-user"></span></td><td>Mark</td><td>Otto</td><td>@mdo</td><td><span class="glyphicon glyphicon-adjust"></span></td>
+			</tr>
+		</tbody>
+	</table>
+</infinity-scroll>
+```
+
+### Parameters
+
+1. total (number) : The number of items
+2. height (number) (optional) : height constraint of the ng-repeat element. Default value 300
+3. ng-limit : the limit of window for directive limitTo. This value is managed this directive, don't set it
+4. ng-begin : the begin of window  for directive limitTo. This value is managed this directive, don't set it
+5. tag-items (string) (optional) : Define the tagname of node repeated by directive ng-repeat. Default value 'tr', without quote.
+6. scrollbar-size (number) (optional) : Define the width of scrollbar. Default value 4 px
+7. show-info-delay (number) (optional) : define the delay of time the infos about the window appears. Default value 1000 ms
+8. debounce (number) (optional) : Set the delay before compute ng-limit. Default value 300 ms
