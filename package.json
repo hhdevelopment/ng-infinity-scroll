@@ -1,6 +1,6 @@
 {
   "name": "ng-infinity-scroll",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "author": "Achache francois",
   "license": "ISC",
   "main": "dist/infinityscroll.js",
