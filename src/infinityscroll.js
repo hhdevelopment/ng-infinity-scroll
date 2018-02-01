@@ -31,6 +31,7 @@ require("./infinityscroll.css");
 				}
 				var ctrl = scope.ctrl;
 				ctrl.ngelt = ngelt; // on sauve l'element jquery
+				ctrl.elt = ngelt.get?ngelt.get(0):ngelt[0]; // on sauve l'element
 				ctrl.computeAreas(); // calcule les rectangles des zones 
 				ctrl.defineInitialValues();
 				var watcherClears = [];
@@ -58,6 +59,7 @@ require("./infinityscroll.css");
 	function InfinityScrollCtrl($timeout, $scope) {
 		var ctrl = this;
 		ctrl.ngelt; // le composant lui meme
+		ctrl.elt; // le composant lui meme
 		ctrl.scrollbarArea = {}; // la zone de la scrollbar
 		ctrl.area = {}; // la zone deu composant
 		ctrl.getInfos = function () {
@@ -161,7 +163,7 @@ require("./infinityscroll.css");
 		 * Calcul des aires
 		 */
 		function computeAreas() {
-			var rect = ctrl.ngelt.get(0).getClientRects()[0];
+			var rect = ctrl.elt.getClientRects()[0];
 			ctrl.area = rect;
 			// zone de la scrollbar
 			var w = $scope.scrollbarSize | 4;
@@ -238,10 +240,9 @@ require("./infinityscroll.css");
 			return ctrl.ngelt.attr('drag') === 'drag';
 		}
 		function isInScrollbar(x, y) {
-			var elt = ctrl.ngelt.get(0);
 			var rect = ctrl.scrollbarArea;
 			var element = document.elementFromPoint(x, y);
-			return element === elt && x >= rect.x; // on est au dessus de la scrollbar
+			return element === ctrl.elt && x >= rect.x; // on est au dessus de la scrollbar
 
 		}
 		function isInGrabber(x, y) {
@@ -256,7 +257,7 @@ require("./infinityscroll.css");
 		var added = false;
 		function initLimit() {
 			added = false;
-			var items = ctrl.ngelt.get(0).getElementsByTagName(getTagItems());
+			var items = ctrl.elt.getElementsByTagName(getTagItems());
 			if (items.length) {
 				var rects = items[items.length - 1].getClientRects();
 				if (rects && rects.length) {
@@ -272,11 +273,11 @@ require("./infinityscroll.css");
 					return;
 				}
 				// on teste si l'element est enfant du composant
-				if (element.nodeName !== NODENAME && ctrl.ngelt.get(0).contains(element)) { // item en bas du tableau
+				if (element.nodeName !== NODENAME && ctrl.elt.contains(element)) { // item en bas du tableau
 					$scope.ngLimit -= 1;
 				} else if(!added) { // pas d'item
 					added = true;
-					var items = ctrl.ngelt.get(0).getElementsByTagName(getTagItems());
+					var items = ctrl.elt.getElementsByTagName(getTagItems());
 					if (items.length) {
 						var height = [].reduce.call(items, function (accu, item) {
 							return accu + item.getClientRects()[0].height;
