@@ -13,6 +13,8 @@ Define size of your table in pixel and infinity-scroll compute pertinent limit a
 
 ## Demo
 
+http://run.plnkr.co/preview/cjd55bod20006fill02kmypwj/
+
 ---
 
 ## Installation
