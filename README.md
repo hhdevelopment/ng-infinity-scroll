@@ -19,7 +19,7 @@ http://run.plnkr.co/preview/cjd55bod20006fill02kmypwj/
 
 ## Installation
 
-Installation is easy with minimal dependencies - only the AngularJS
+Installation is easy with minimal dependencies - only the AngularJS and Jquery
 
 #### Install with NPM
 
