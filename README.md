@@ -13,6 +13,7 @@ Define size of your table in pixel and infinity-scroll compute pertinent limit a
 
 ## Demo
 
+https://jsfiddle.net/hhfrancois/frf5g8b6/27/embedded/
 http://run.plnkr.co/preview/cjd55bod20006fill02kmypwj/
 
 ---
