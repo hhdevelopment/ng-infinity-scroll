@@ -8,45 +8,51 @@ require("./infinityscroll.css");
 	'use strict';
 	ng.module(MODULENAME, []).directive(DIRECTIVENAME, InfinityScroll);
 	/* @ngInject */
-	function InfinityScroll($timeout) {
+	function InfinityScroll($timeout, $compile) {
 		return {
-			restrict: 'E',
-			template: "<span ng-show='ctrl.onscroll' class='infos-crolling'>{{ctrl.getInfos()}}</span><ng-transclude></ng-transclude>",
+			restrict: 'EA',
 			controller: InfinityScrollCtrl,
 			controllerAs: 'ctrl',
-			transclude: true,
 			scope: {
 				'total': '<',
-				'scrollbarSize': '<',
+				'scrollbarSize': '@',
 				'showInfoDelay': '<',
 				'debounce': '<',
 				'tagItems': '@',
 				'height': '<',
 				'ngBegin': '=',
 				'ngLimit': '='
-			}, link: function (scope, ngelt, attrs) {
-				ngelt.find('ng-transclude').css({'width': 'calc(100% - ' + (scope.scrollbarSize | 4) + 'px)'});
-				if(scope.height === undefined) {
+			}, link: function (scope, ngelt, attrs, ctrl) {
+				var info = $compile("<span ng-show='ctrl.onscroll' class='infos-crolling' ng-bind='ctrl.getInfos()'></span>")(scope);
+				ngelt.append(info);
+				if (scope.height === undefined) {
 					scope.height = 300;
 				}
-				var ctrl = scope.ctrl;
 				ctrl.ngelt = ngelt; // on sauve l'element jquery
-				ctrl.elt = ngelt.get?ngelt.get(0):ngelt[0]; // on sauve l'element
+				ctrl.elt = ngelt.get ? ngelt.get(0) : ngelt[0]; // on sauve l'element
 				ctrl.computeAreas(); // calcule les rectangles des zones 
 				ctrl.defineInitialValues();
 				var watcherClears = [];
+				watcherClears.push(scope.$watch(function(scope) {
+					return scope.ctrl.ngelt.css('display');
+				}, function (v1, v2, s) {
+					if(v1 !== 'none') {
+						s.ctrl.updateHeight();
+						$timeout(s.ctrl.updateLimit, s.debounce || 300, true);
+					}
+				}));
 				watcherClears.push(scope.$watch('height', function (v1, v2, s) {
 					s.ctrl.updateHeight();
-				}, false));
+				}));
 				watcherClears.push(scope.$watch('total', function (v1, v2, s) {
 					s.ctrl.updateTotal();
-				}, false));
+				}));
 				watcherClears.push(scope.$watch('ngLimit', function (v1, v2, s) {
 					$timeout(s.ctrl.updateLimit, s.debounce || 300, true);
-				}, false));
+				}));
 				watcherClears.push(scope.$watch('ngBegin', function (v1, v2, s) {
 					$timeout(s.ctrl.updateBegin, s.debounce || 300, true);
-				}, false));
+				}));
 				scope.$on('$destroy', function () {
 					watcherClears.forEach(function (watcherClear) {
 						watcherClear();
@@ -155,24 +161,43 @@ require("./infinityscroll.css");
 				$timeout.cancel(resizeTimer);
 			}
 			resizeTimer = $timeout(function (s) {
-				computeAreas();
+				invalidAreas();
 				initLimit();
 			}, 200, true, $scope);
+		}
+		function getArea() {
+			if (!ctrl.area.height) {
+				computeAreas();
+			}
+			return ctrl.area;
+		}
+		function getScrollbarArea() {
+			if (!ctrl.scrollbarArea.height) {
+				computeAreas();
+			}
+			return ctrl.scrollbarArea;
+		}
+		function invalidAreas() {
+			ctrl.area = {x: 0, y: 0, left: 0, right: 0, width: 0, height: 0, top: 0, bottom: 0};
+			ctrl.scrollbarArea = {x: 0, y: 0, left: 0, right: 0, width: 0, height: 0, top: 0, bottom: 0};
 		}
 		/**
 		 * Calcul des aires
 		 */
 		function computeAreas() {
 			var rect = ctrl.elt.getClientRects()[0];
-			ctrl.area = rect;
-			// zone de la scrollbar
-			var w = $scope.scrollbarSize | 4;
-			ctrl.scrollbarArea = {
-				x: rect.right - w, y: rect.top,
-				left: rect.right - w, right: rect.right,
-				width: w, height: rect.height,
-				top: rect.top, bottom: rect.bottom
-			};
+			if (rect) {
+				ctrl.area = rect;
+				// zone de la scrollbar
+				var bgSize = ctrl.ngelt.css('background-size');
+				var w = parseInt(bgSize.replace(/px\s+\d+(\.\d+)*.*/, ''));
+				ctrl.scrollbarArea = {
+					x: rect.right - w, y: rect.top,
+					left: rect.right - w, right: rect.right,
+					width: w, height: rect.height,
+					top: rect.top, bottom: rect.bottom
+				};
+			}
 		}
 		/**
 		 * la souris bouge au dessus du composant
@@ -192,8 +217,8 @@ require("./infinityscroll.css");
 				event.stopImmediatePropagation();
 				event.stopPropagation();
 				event.preventDefault();
-				var onePercent = ctrl.scrollbarArea.height / 100;
-				var percentY = (m.y - ctrl.scrollbarArea.top) / onePercent;
+				var onePercent = getScrollbarArea().height / 100;
+				var percentY = (m.y - getScrollbarArea().top) / onePercent;
 				ctrl.cursorPos = moveCursor(percentY);
 				computeBeginFromCursor(ctrl.cursorPos);
 			}
@@ -212,7 +237,7 @@ require("./infinityscroll.css");
 		function click(event) {
 			if (isDragMode())
 				return;
-			var rect = ctrl.scrollbarArea;
+			var rect = getScrollbarArea();
 			var m = getMousePosition(event);
 			if (isInScrollbar(m.x, m.y)) { // on a clicke dans scrollable
 				if (!isInGrabber(m.x, m.y)) {
@@ -240,15 +265,13 @@ require("./infinityscroll.css");
 			return ctrl.ngelt.attr('drag') === 'drag';
 		}
 		function isInScrollbar(x, y) {
-			var rect = ctrl.scrollbarArea;
 			var element = document.elementFromPoint(x, y);
-			return element === ctrl.elt && x >= rect.x; // on est au dessus de la scrollbar
+			return element === ctrl.elt && x >= getScrollbarArea().x; // on est au dessus de la scrollbar
 
 		}
 		function isInGrabber(x, y) {
 			if (isInScrollbar(x, y)) {
-				var rect = ctrl.scrollbarArea;
-				var start = rect.y + getGrabberOffset(ctrl.cursorSize, ctrl.cursorPos);
+				var start = getScrollbarArea().y + getGrabberOffset(ctrl.cursorSize, ctrl.cursorPos);
 				var end = start + getGrabberHeight(ctrl.cursorSize);
 				return y >= start && y <= end;
 			}
@@ -262,27 +285,27 @@ require("./infinityscroll.css");
 				var rects = items[items.length - 1].getClientRects();
 				if (rects && rects.length) {
 					var height = rects[0].height;
-					$scope.ngLimit = Math.floor(ctrl.area.height / height);
+					$scope.ngLimit = Math.floor(getArea().height / height);
 				}
 			}
 		}
 		function adjustLimit() {
 			if ($scope.total) {
-				var element = document.elementFromPoint(ctrl.area.left + 1, ctrl.area.bottom - 1);
+				var element = document.elementFromPoint(getArea().left + 1, getArea().bottom - 1);
 				if (!element) {
 					return;
 				}
 				// on teste si l'element est enfant du composant
-				if (element.nodeName !== NODENAME && ctrl.elt.contains(element)) { // item en bas du tableau
+				if (element.nodeName !== NODENAME && !element.hasAttribute(TAGNAME) && ctrl.elt.contains(element)) { // item en bas du tableau
 					$scope.ngLimit -= 1;
-				} else if(!added) { // pas d'item
+				} else if (!added) { // pas d'item
 					added = true;
 					var items = ctrl.elt.getElementsByTagName(getTagItems());
 					if (items.length) {
 						var height = [].reduce.call(items, function (accu, item) {
 							return accu + item.getClientRects()[0].height;
 						}, 0);
-						var empty = ctrl.area.height - height;
+						var empty = getArea().height - height;
 						var average = Math.floor(height / items.length);
 						var inc = Math.floor(empty / average);
 						$scope.ngLimit += inc;
@@ -292,8 +315,9 @@ require("./infinityscroll.css");
 		}
 		function computeHeightGrabber() {
 			var heightGrabber = Math.min(Math.max(($scope.ngLimit / $scope.total) * 100, 2), 100);
-			var w = $scope.scrollbarSize | 4;
-			ctrl.ngelt.css({'background-size': w + 'px ' + getGrabberHeight(heightGrabber) + 'px'});
+			var bgSize = ctrl.ngelt.css('background-size');
+			bgSize = bgSize.replace(/px\s+\d+(\.\d+)*.*/, 'px ' + getGrabberHeight(heightGrabber) + 'px');
+			ctrl.ngelt.css({'background-size': bgSize});
 			return heightGrabber;
 		}
 		var scrollTimer = null;
@@ -327,7 +351,7 @@ require("./infinityscroll.css");
 		 * @returns {Number}
 		 */
 		function getGrabberOffset(percentSize, percentPos) {
-			return ctrl.scrollbarArea.height * percentPos / (100 + percentSize);
+			return getScrollbarArea().height * percentPos / (100 + percentSize);
 		}
 		/**
 		 * Calcul la hauteur du grabber
@@ -335,7 +359,8 @@ require("./infinityscroll.css");
 		 * @returns {Number}
 		 */
 		function getGrabberHeight(percentSize) {
-			return ctrl.scrollbarArea.height * percentSize / 100;
+			console.log("sb area", getScrollbarArea());
+			return getScrollbarArea().height * percentSize / 100;
 		}
 		function getTagItems() {
 			return $scope.tagItems || 'tr';

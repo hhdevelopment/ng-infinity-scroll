@@ -75,6 +75,6 @@ angular.module('myModule', ['infinity.scroll']);
 3. ng-limit : the limit of window for directive limitTo. This value is managed this directive, don't set it
 4. ng-begin : the begin of window  for directive limitTo. This value is managed this directive, don't set it
 5. tag-items (string) (optional) : Define the tagname of node repeated by directive ng-repeat. Default value 'tr', without quote.
-6. scrollbar-size (number) (optional) : Define the width of scrollbar. Default value 4 px
+6. scrollbar-size (string) (optional) : Define the size of scrollbar. Values('xs', 'sm', 'lg'), without quote. xs:4px, sm:8px, lg:20px. Default size 16px
 7. show-info-delay (number) (optional) : define the delay of time the infos about the window appears. Default value 1000 ms
 8. debounce (number) (optional) : Set the delay before compute ng-limit. Default value 300 ms
