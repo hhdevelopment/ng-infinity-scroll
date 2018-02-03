@@ -29,7 +29,15 @@ require("./infinityscroll.css");
 				var info = $compile("<span ng-show='ctrl.onscroll' class='infos-crolling' ng-bind='ctrl.getInfos()'></span>")(scope);
 				ngelt.append(info);
 				if (scope.size === undefined) {
-					scope.size = ctrl.isHorizontal() ? ngelt.width(): 300;
+					scope.size = ctrl.isHorizontal() ? ngelt.width() : 300;
+				}
+				var attr = ctrl.ngelt.attr('scrollbar-size');
+				if (!attr) {
+					ctrl.ngelt.attr('scrollbar-size', 'md');
+				}
+				var pos = ctrl.ngelt.css('position');
+				if (pos === 'static') {
+					ctrl.ngelt.css('position', 'inherit');
 				}
 				ctrl.computeAreas(); // calcule les rectangles des zones 
 				ctrl.defineInitialValues();
@@ -166,7 +174,7 @@ require("./infinityscroll.css");
 		 */
 		var resizeTimer = null;
 		function updateSize() {
-			if(!isHorizontal()) {
+			if (!isHorizontal()) {
 				ctrl.ngelt.css('height', $scope.size);
 			}
 			if (resizeTimer) {
@@ -450,7 +458,7 @@ require("./infinityscroll.css");
 		 * @returns {Number}
 		 */
 		function getGrabberOffsetPixel(percentSize, percentOffset) {
-			var sbLenght = isHorizontal()?getScrollbarArea().width:getScrollbarArea().height; // Longueur de la scrollbar
+			var sbLenght = isHorizontal() ? getScrollbarArea().width : getScrollbarArea().height; // Longueur de la scrollbar
 			var grabberOffsetPixel = sbLenght * percentOffset / (100 + percentSize);
 			return Math.max(grabberOffsetPixel, 0);
 		}
