@@ -21,12 +21,6 @@ infinity-scroll {
 [infinity-scroll][drag], infinity-scroll[drag] {
 	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gEZDxAQ2wBkhAAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAADElEQVQI12OorKwEAALaAWyeCJ/eAAAAAElFTkSuQmCC');
 }
-[infinity-scroll], infinity-scroll {
-	background-size: 16px 100%;
-}
-[infinity-scroll] > *, infinity-scroll > * {
-	width: calc(100% - 16px);	
-}
 [infinity-scroll][scrollbar-size='xs'], infinity-scroll[scrollbar-size='xs'] {
 	background-size: 4px 100%;
 }
@@ -38,6 +32,12 @@ infinity-scroll {
 }
 [infinity-scroll][scrollbar-size='sm'] > *, infinity-scroll[scrollbar-size='sm'] > * {
 	width: calc(100% - 8px);	
+}
+[infinity-scroll][scrollbar-size='md'], infinity-scroll[scrollbar-size='md'] {
+	background-size: 16px 100%;
+}
+[infinity-scroll][scrollbar-size='md'] > *, infinity-scroll[scrollbar-size='md'] > * {
+	width: calc(100% - 16px);	
 }
 [infinity-scroll][scrollbar-size='lg'], infinity-scroll[scrollbar-size='lg'] {
 	background-size: 20px 100%;

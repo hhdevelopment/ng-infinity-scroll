@@ -52,7 +52,7 @@ module.exports = function (env) {
 				'jQuery': 'jquery',
 				'$': 'jquery'
 			}),
-			new ExtractTextPlugin('[name].css'),
+			new ExtractTextPlugin('[name].[chunkhash].css'),
 			new webpack.optimize.CommonsChunkPlugin({
 				name: 'vendor',
 				minChunks: function (module) {
