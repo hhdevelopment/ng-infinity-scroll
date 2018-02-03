@@ -1,4 +1,5 @@
 [infinity-scroll] {
+/*	position:inherit;*/
 }
 infinity-scroll {
 	display: block;
@@ -10,30 +11,15 @@ infinity-scroll {
 	background-position: right 0%;
 	overflow-y: hidden;
 }
+[infinity-scroll].scroll-horizontal, infinity-scroll.scroll-horizontal {
+	background-position: 0% bottom;
+	overflow-x: hidden;
+}
 [infinity-scroll][hover], infinity-scroll[hover] {
 	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gEZDw83s1DfcQAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAADElEQVQI12NYuXIlAAP6Afx7V39BAAAAAElFTkSuQmCC');
 }
 [infinity-scroll][drag], infinity-scroll[drag] {
 	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gEZDxAQ2wBkhAAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAADElEQVQI12OorKwEAALaAWyeCJ/eAAAAAElFTkSuQmCC');
-}
-[infinity-scroll] > span.infos-crolling, infinity-scroll > span.infos-crolling {
-	display: inline-block;
-	width: auto;
-	position:absolute;
-	bottom:10px;
-	right:10px;
-	z-index: 1000;
-	min-width: 10px;
-	padding: 3px 7px;
-	font-size: 12px;
-	font-weight: bold;
-	line-height: 1;
-	color: #fff;
-	text-align: center;
-	white-space: nowrap;
-	vertical-align: middle;
-	background-color: #777;
-	border-radius: 10px;
 }
 [infinity-scroll], infinity-scroll {
 	background-size: 16px 100%;
@@ -58,4 +44,49 @@ infinity-scroll {
 }
 [infinity-scroll][scrollbar-size='lg'] > *, infinity-scroll[scrollbar-size='lg'] > * {
 	width: calc(100% - 20px);	
+}
+[infinity-scroll].scroll-horizontal, infinity-scroll.scroll-horizontal {
+	background-size: 100% 16px;
+}
+[infinity-scroll].scroll-horizontal > *, infinity-scroll.scroll-horizontal > * {
+	height: calc(100% - 16px);	
+}
+[infinity-scroll][scrollbar-size='xs'].scroll-horizontal, infinity-scroll[scrollbar-size='xs'].scroll-horizontal {
+	background-size: 100% 4px;
+}
+[infinity-scroll][scrollbar-size='xs'].scroll-horizontal > *, infinity-scroll[scrollbar-size='xs'].scroll-horizontal > * {
+	height: calc(100% - 4px);	
+}
+[infinity-scroll][scrollbar-size='sm'].scroll-horizontal, infinity-scroll[scrollbar-size='sm'].scroll-horizontal {
+	background-size: 100% 8px;
+}
+[infinity-scroll][scrollbar-size='sm'].scroll-horizontal > *, infinity-scroll[scrollbar-size='sm'].scroll-horizontal > * {
+	height: calc(100% - 8px);	
+}
+[infinity-scroll][scrollbar-size='lg'].scroll-horizontal, infinity-scroll[scrollbar-size='lg'].scroll-horizontal {
+	background-size: 100% 20px;
+}
+[infinity-scroll][scrollbar-size='lg'].scroll-horizontal > *, infinity-scroll[scrollbar-size='lg'].scroll-horizontal > * {
+	height: calc(100% - 20px);	
+}
+[infinity-scroll][scrollbar-size] > span.infos-crolling, infinity-scroll[scrollbar-size] > span.infos-crolling,
+[infinity-scroll] > span.infos-crolling, infinity-scroll > span.infos-crolling {
+	display: inline-block;
+	width: auto;
+	height: auto;
+	position:absolute;
+	bottom:10px;
+	right:10px;
+	z-index: 1000;
+	min-width: 10px;
+	padding: 3px 7px;
+	font-size: 12px;
+	font-weight: bold;
+	line-height: 1;
+	color: #fff;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: middle;
+	background-color: #777;
+	border-radius: 10px;
 }
