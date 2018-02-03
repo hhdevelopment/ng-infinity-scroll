@@ -4,7 +4,7 @@ ng-infinity-scroll is a directive for angular 1.x
 
 it allows to use angular directive *limitTo* synchronized with a scrollbar.
 
-It is very usefull to use thois directive when you try to show many row in the table for example.
+It is very usefull to use this directive when you try to show many rows in the table for example.
 
 Define size of your table in pixel and infinity-scroll compute pertinent limit and manage begin variables.
 
@@ -14,6 +14,7 @@ Define size of your table in pixel and infinity-scroll compute pertinent limit a
 ## Demo
 
 https://jsfiddle.net/hhfrancois/frf5g8b6/27/embedded/
+
 http://run.plnkr.co/preview/cjd55bod20006fill02kmypwj/
 
 ---
@@ -72,8 +73,8 @@ angular.module('myModule', ['infinity.scroll']);
 
 1. total (number) : The number of items
 2. size (number) (optional) : height constraint of the ng-repeat element. Default height value 300
-3. ng-limit : the limit of window for directive limitTo. This value is managed this directive, don't set it
-4. ng-begin : the begin of window  for directive limitTo. This value is managed this directive, don't set it
+3. ng-limit : the limit of window for directive limitTo. This value is managed by the directive, don't set it
+4. ng-begin : the begin of window  for directive limitTo. This value is managed by the directive, don't set it
 5. tag-items (string) (optional) : Define the tagname of node repeated by directive ng-repeat. Default value 'tr', without quote.
 6. scrollbar-size (string) (optional) : Define the size of scrollbar. Values('xs', 'sm', 'md', 'lg'), without quote. xs:4px, sm:8px, md:16px, lg:20px. Default value md
 7. show-info-delay (number) (optional) : define the delay of time the infos about the window appears. Default value 1000 ms
