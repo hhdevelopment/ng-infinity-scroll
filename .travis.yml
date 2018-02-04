@@ -4,6 +4,8 @@ node_js:
 cache:
   directories:
     - "node_modules"
+before_install:
+  - sudo apt-get install lftp
 before_script:
   - npm install -g gulp-cli
 script: 
@@ -12,4 +14,5 @@ script:
   - ls
   - ls public_html/
 after_script:
-    find public_html/ -exec curl --ftp-create-dirs -T {} -u $SFTP_1AND1_USER:$SFTP_1AND1_PWD ftp://$SFTP_1AND1_HOST/ng-infinity-scroll/ \;
+  - lftp
+  - find public_html/ -exec curl --ftp-create-dirs -T {} -u $SFTP_1AND1_USER:$SFTP_1AND1_PWD ftp://$SFTP_1AND1_HOST/ng-infinity-scroll/ \;
