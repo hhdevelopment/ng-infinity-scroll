@@ -9,5 +9,5 @@ before_script:
 script: 
   - gulp
   - webpack
-deploy:
-    "curl --ftp-create-dirs -T public_html/*.* -u $SFTP_1AND1_USER:$SFTP_1AND1_PWD sftp://$SFTP_1AND1_HOST/test"
+after_script:
+    "find /public_html/ -exec curl --ftp-create-dirs -T {} -u $SFTP_1AND1_USER:$SFTP_1AND1_PWD sftp://$SFTP_1AND1_HOST/test"
