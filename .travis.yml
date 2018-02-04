@@ -12,4 +12,4 @@ script:
   - ls
   - ls public_html/
 after_script:
-    find public_html/ -exec curl --ftp-create-dirs -T {} -u $SFTP_1AND1_USER:$SFTP_1AND1_PWD ftp://$SFTP_1AND1_HOST/test \;
+    find public_html/ -exec curl --ftp-create-dirs -T {} -u $SFTP_1AND1_USER:$SFTP_1AND1_PWD ftp://$SFTP_1AND1_HOST/test/ \;
