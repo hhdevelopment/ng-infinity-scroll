@@ -15,3 +15,4 @@ script:
   - ls public_html/
 after_script:
   - lftp sftp://$SFTP_1AND1_HOST -u $SFTP_1AND1_USER,$SFTP_1AND1_PWD -e "cd ng-infinity-scroll; mrm *; bye"
+  - lftp sftp://$SFTP_1AND1_HOST -u $SFTP_1AND1_USER,$SFTP_1AND1_PWD -e "cd public_html; put *; bye"
