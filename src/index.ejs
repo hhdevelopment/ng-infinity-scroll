@@ -10,8 +10,7 @@
 				<h1>Infinity-scroll Demo</h1>
 			</div>
 			<div class="row">
-				<div class="col-xs-5">
-					<!-- Split button -->
+				<div class="col-xs-2">
 					<div class="btn-group">
 						<button type="button" class="btn">Directories</button>
 						<button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -20,7 +19,7 @@
 						</button>
 						<ul class="dropdown-menu" infinity-scroll scrollbar-size="sm" show-info-delay="2000" 
 							 total="ctrl.categories.length" tag-items="li"
-							 ng-begin="begin1" ng-limit="limit1" size="100">
+							 ng-begin="begin1" ng-limit="limit1" style="height: 100px">
 							<li ng-repeat="cat in ctrl.categories| limitTo:limit1:begin1">
 								<a href="#" ng-bind="cat.name">
 								</a>
@@ -28,9 +27,9 @@
 						</ul>
 					</div>
 					<div infinity-scroll class="list-group" scrollbar-size="sm" show-info-delay="2000" total="ctrl.categories.length" 
-						  ng-begin="begin0" ng-limit="limit0" size="300"
+						  ng-begin="begin0" ng-limit="limit0"
 						  tag-items="a"
-						  style="border:solid 1px black">
+						  style="border:solid 1px black;height: 200px">
 						<a href="#" class="list-group-item" ng-repeat="cat in ctrl.categories| limitTo:limit0:begin0" 
 							ng-click="ctrl.selectCategory(cat)"
 							ng-class="{active:ctrl.selectedCategory === cat}">
@@ -39,13 +38,20 @@
 							<span class="badge" ng-bind="cat.nb"></span>
 						</a>
 					</div>			
+					<infinity-scroll class="scroll-horizontal" scrollbar-size="sm" show-info-delay="2000" total="ctrl.items.length" 
+										  ng-begin="begin2" ng-limit="limit2" size="300" tag-items="div"
+										  style="border:solid 1px black;height: 60px;padding-top: 16px">
+						<div ng-repeat="item in ctrl.items| limitTo:limit2:begin2" class="alert alert-info" style="display: initial">
+							<span class="glyphicon glyphicon-user"></span>
+							<span ng-bind="item"></span>
+						</div>
+					</infinity-scroll>
 				</div>
-				<div class="col-xs-7">
+				<div class="col-xs-5">
 					<input type="number" class="form-control input-lg" placeholder="Text input" ng-model="ctrl.height">
 					<infinity-scroll show-info-delay="2000" total="ctrl.items.length" 
-										  ng-begin="begin" ng-limit="limit" size="ctrl.height"
-										  tag-items="tr"
-										  style="border:solid 1px black">
+										  collapsible ng-begin="begin" ng-limit="limit" tag-items="tr"
+										  style="max-height: {{ctrl.height}}px">
 						<table class="table table-hover table-striped">
 							<thead>
 								<tr>
@@ -59,19 +65,33 @@
 							</thead>
 							<tbody>
 								<tr ng-repeat="item in ctrl.items| limitTo:limit:begin">
-									<td ng-bind="item" sng-style="{height:!$index && !begin?80:none}"></td><td><span class="glyphicon glyphicon-user"></span></td><td>Mark</td><td>Otto</td><td>@mdo</td><td><span class="glyphicon glyphicon-adjust"></span></td>
+									<td ng-bind="item"></td><td><span class="glyphicon glyphicon-user"></span></td><td>Mark</td><td>Otto</td><td>@mdo</td><td><span class="glyphicon glyphicon-adjust"></span></td>
 								</tr>
 							</tbody>
 						</table>
 					</infinity-scroll>
-					<infinity-scroll class="scroll-horizontal" scrollbar-size="sm" show-info-delay="2000" total="ctrl.items.length" 
-										  ng-begin="begin2" ng-limit="limit2" size="300" tag-items="div"
-										  style="border:solid 1px black;height: 60px;padding-top: 16px">
-						<div ng-repeat="item in ctrl.items| limitTo:limit2:begin2" class="alert alert-info" style="display: initial">
-							<span class="glyphicon glyphicon-user"></span>
-							<span ng-bind="item"></span>
-							<span>Mark</span>
-						</div>
+				</div>
+				<div class="col-xs-5">
+					<infinity-scroll show-info-delay="2000" total="ctrl.items.length" 
+										  ng-begin="begin3" ng-limit="limit3" tag-items="tr"
+										  style="height: {{ctrl.height}}px;border:solid 1px black;">
+						<table class="table table-hover table-striped">
+							<thead>
+								<tr>
+									<th style="width:30px">First</th>
+									<th style="width:20px">2e</th>
+									<th>Third</th>
+									<th>Fourth</th>
+									<th style="width:50px">Last</th>
+									<th style="width:20px"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="item in ctrl.items| limitTo:limit3:begin3">
+									<td ng-bind="item"></td><td><span class="glyphicon glyphicon-user"></span></td><td>Mark</td><td>Otto</td><td>@mdo</td><td><span class="glyphicon glyphicon-adjust"></span></td>
+								</tr>
+							</tbody>
+						</table>
 					</infinity-scroll>
 				</div>
 			</div>

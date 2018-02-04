@@ -6,7 +6,6 @@ infinity-scroll {
 	position:relative;
 }
 [infinity-scroll], infinity-scroll {
-	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gEZDw8Zb4bSvgAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAADElEQVQI12M4cOAAAASEAkEwrrB4AAAAAElFTkSuQmCC');
 	background-repeat: no-repeat;
 	background-position: right 0%;
 	overflow-y: hidden;
@@ -15,6 +14,14 @@ infinity-scroll {
 	background-position: 0% bottom;
 	overflow-x: hidden;
 }
+[infinity-scroll][collapsible], infinity-scroll[collapsible] {
+	background-image: none;
+}
+[infinity-scroll][collapsible]:hover, infinity-scroll[collapsible]:hover,
+[infinity-scroll], infinity-scroll {
+	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gEZDw8Zb4bSvgAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAADElEQVQI12M4cOAAAASEAkEwrrB4AAAAAElFTkSuQmCC');
+}
+[infinity-scroll][hover][collapsible]:hover, infinity-scroll[hover][collapsible]:hover,
 [infinity-scroll][hover], infinity-scroll[hover] {
 	background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gEZDw83s1DfcQAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAADElEQVQI12NYuXIlAAP6Afx7V39BAAAAAElFTkSuQmCC');
 }
@@ -24,27 +31,41 @@ infinity-scroll {
 [infinity-scroll][scrollbar-size='xs'], infinity-scroll[scrollbar-size='xs'] {
 	background-size: 4px 100%;
 }
+[infinity-scroll][scrollbar-size='xs'][collapsible]:hover > *, infinity-scroll[scrollbar-size='xs'][collapsible]:hover > *,
+[infinity-scroll][scrollbar-size='xs'][collapsible][drag] > *, infinity-scroll[scrollbar-size='xs'][collapsible][drag] > *,
 [infinity-scroll][scrollbar-size='xs'] > *, infinity-scroll[scrollbar-size='xs'] > * {
 	width: calc(100% - 4px);	
 }
 [infinity-scroll][scrollbar-size='sm'], infinity-scroll[scrollbar-size='sm'] {
 	background-size: 8px 100%;
 }
+[infinity-scroll][scrollbar-size='sm'][collapsible]:hover > *, infinity-scroll[scrollbar-size='sm'][collapsible]:hover > *,
+[infinity-scroll][scrollbar-size='sm'][collapsible][drag] > *, infinity-scroll[scrollbar-size='sm'][collapsible][drag] > *,
 [infinity-scroll][scrollbar-size='sm'] > *, infinity-scroll[scrollbar-size='sm'] > * {
 	width: calc(100% - 8px);	
 }
 [infinity-scroll][scrollbar-size='md'], infinity-scroll[scrollbar-size='md'] {
 	background-size: 16px 100%;
 }
+[infinity-scroll][scrollbar-size='md'][collapsible]:hover > *, infinity-scroll[scrollbar-size='md'][collapsible]:hover > *,
+[infinity-scroll][scrollbar-size='md'][collapsible][drag] > *, infinity-scroll[scrollbar-size='md'][collapsible][drag] > *,
 [infinity-scroll][scrollbar-size='md'] > *, infinity-scroll[scrollbar-size='md'] > * {
 	width: calc(100% - 16px);	
 }
 [infinity-scroll][scrollbar-size='lg'], infinity-scroll[scrollbar-size='lg'] {
 	background-size: 20px 100%;
 }
+[infinity-scroll][scrollbar-size='lg'][collapsible]:hover > *, infinity-scroll[scrollbar-size='lg'][collapsible]:hover > *,
+[infinity-scroll][scrollbar-size='lg'][collapsible][drag] > *, infinity-scroll[scrollbar-size='lg'][collapsible][drag] > *,
 [infinity-scroll][scrollbar-size='lg'] > *, infinity-scroll[scrollbar-size='lg'] > * {
 	width: calc(100% - 20px);	
 }
+[infinity-scroll][collapsible] > *, infinity-scroll[collapsible] > * {
+	width: 100%;	
+}
+
+
+
 [infinity-scroll].scroll-horizontal, infinity-scroll.scroll-horizontal {
 	background-size: 100% 16px;
 }
@@ -69,6 +90,7 @@ infinity-scroll {
 [infinity-scroll][scrollbar-size='lg'].scroll-horizontal > *, infinity-scroll[scrollbar-size='lg'].scroll-horizontal > * {
 	height: calc(100% - 20px);	
 }
+[infinity-scroll][scrollbar-size][collapsible] > span.infos-crolling, infinity-scroll[scrollbar-size][collapsible] > span.infos-crolling,
 [infinity-scroll][scrollbar-size] > span.infos-crolling, infinity-scroll[scrollbar-size] > span.infos-crolling,
 [infinity-scroll] > span.infos-crolling, infinity-scroll > span.infos-crolling {
 	display: inline-block;

@@ -20,10 +20,11 @@ require("./infinityscroll.css");
 				'showInfoDelay': '<',
 				'debounce': '<',
 				'tagItems': '@',
-				'size': '<',
 				'ngBegin': '=',
 				'ngLimit': '='
 			}, link: function (scope, ngelt, attrs, ctrl) {
+				scope.ngBegin = 0;
+				scope.ngLimit = 0;
 				ctrl.ngelt = ngelt; // on sauve l'element jquery
 				ctrl.elt = ngelt.get ? ngelt.get(0) : ngelt[0]; // on sauve l'element
 				var info = $compile("<span ng-show='ctrl.onscroll' class='infos-crolling' ng-bind='ctrl.getInfos()'></span>")(scope);
@@ -36,13 +37,11 @@ require("./infinityscroll.css");
 					ctrl.ngelt.attr('scrollbar-size', 'md');
 				}
 				var pos = ctrl.ngelt.css('position');
-				if (pos === 'static') {
+				if (pos === 'static') { // repositionne le badge d'info
 					ctrl.ngelt.css('position', 'inherit');
 				}
-				ctrl.computeAreas(); // calcule les rectangles des zones 
-				ctrl.defineInitialValues();
 				var watcherClears = [];
-				if (ngelt.css('display') === 'none') {
+				if (ngelt.css('display') === 'none') { // si c'est une popup, on surveille le display 
 					watcherClears.push(scope.$watch(function (scope) {
 						return scope.ctrl.ngelt.css('display');
 					}, function (v1, v2, s) {
@@ -52,6 +51,19 @@ require("./infinityscroll.css");
 						} else {
 							s.ngLimit = 0;
 						}
+					}));
+				}
+				if(scope.ctrl.isHorizontal()) {
+					watcherClears.push(scope.$watch(function (scope) {
+						return scope.ctrl.ngelt.width();
+					}, function (v1, v2, s) {
+						s.ctrl.updateSize();
+					}));
+				} else {
+					watcherClears.push(scope.$watch(function (scope) {
+						return scope.ctrl.ngelt.height();
+					}, function (v1, v2, s) {
+						s.ctrl.updateSize();
 					}));
 				}
 				watcherClears.push(scope.$watch('size', function (v1, v2, s) {
@@ -79,8 +91,6 @@ require("./infinityscroll.css");
 		var ctrl = this;
 		ctrl.ngelt; // le composant lui meme
 		ctrl.elt; // le composant lui meme
-		ctrl.scrollbarArea = {}; // la zone de la scrollbar
-		ctrl.area = {}; // la zone deu composant
 		ctrl.getInfos = function () {
 			return "[" + Math.ceil($scope.ngBegin + 1) + "-" + Math.ceil($scope.ngBegin + Math.min($scope.ngLimit, $scope.total)) + "]/" + $scope.total;
 		};
@@ -91,12 +101,10 @@ require("./infinityscroll.css");
 		ctrl.addEventListeners = addEventListeners; // gestion de la molette
 		ctrl.isHorizontal = isHorizontal;
 
-		ctrl.computeAreas = computeAreas;
 		ctrl.updateTotal = updateTotal;
 		ctrl.updateLimit = updateLimit;
 		ctrl.updateBegin = updateBegin;
 		ctrl.updateSize = updateSize;
-		ctrl.defineInitialValues = defineInitialValues;
 
 		/**
 		 * Ajoute tous les handlers
@@ -163,57 +171,37 @@ require("./infinityscroll.css");
 			adjustLimit();
 		}
 		/**
-		 * Définit les valeurs initial
-		 */
-		function defineInitialValues() {
-			$scope.ngBegin = 0;
-			$scope.ngLimit = 0;
-		}
-		/**
 		 * La fenetre a ete redimentionn�
 		 */
 		var resizeTimer = null;
 		function updateSize() {
-			if (!isHorizontal()) {
-				ctrl.ngelt.css('height', $scope.size);
-			}
+//			if (!isHorizontal()) {
+//				ctrl.ngelt.css('height', $scope.size);
+//			}
 			if (resizeTimer) {
 				$timeout.cancel(resizeTimer);
 			}
 			resizeTimer = $timeout(function (s) {
-				invalidAreas();
 				initLimit();
 			}, 200, true, $scope);
 		}
 		function getArea() {
-			if (isHorizontal() ? !ctrl.area.width : !ctrl.area.height) {
-				computeAreas();
-			}
-			return ctrl.area;
-		}
-		function getScrollbarArea() {
-			if (isHorizontal() ? !ctrl.scrollbarArea.width : !ctrl.scrollbarArea.height) {
-				computeAreas();
-			}
-			return ctrl.scrollbarArea;
-		}
-		function invalidAreas() {
-			ctrl.area = {x: 0, y: 0, left: 0, right: 0, width: 0, height: 0, top: 0, bottom: 0};
-			ctrl.scrollbarArea = {x: 0, y: 0, left: 0, right: 0, width: 0, height: 0, top: 0, bottom: 0};
-		}
-		/**
-		 * Calcul des aires
-		 */
-		function computeAreas() {
 			var rect = ctrl.elt.getClientRects()[0];
 			if (rect) {
-				ctrl.area = rect;
+				return rect;
+			} else {
+				return {x: 0, y: 0, left: 0, right: 0, width: 0, height: 0, top: 0, bottom: 0};
+			}
+		}
+		function getScrollbarArea() {
+			var rect = ctrl.elt.getClientRects()[0];
+			if (rect) {
 				// zone de la scrollbar
 				var bgSize = ctrl.ngelt.css('background-size');
 				var s;
 				if (isHorizontal()) { // on veut height
 					s = parseInt(bgSize.match(/\D*\d+\D*(\d+)\D*/)[1]);
-					ctrl.scrollbarArea = {
+					return {
 						x: rect.left, y: rect.bottom - s,
 						left: rect.left, right: rect.right,
 						width: rect.width, height: s,
@@ -221,13 +209,15 @@ require("./infinityscroll.css");
 					};
 				} else { // on veut width
 					s = parseInt(bgSize.match(/\D*(\d+)\D*\d+\D*/)[1]);
-					ctrl.scrollbarArea = {
+					return {
 						x: rect.right - s, y: rect.top,
 						left: rect.right - s, right: rect.right,
 						width: s, height: rect.height,
 						top: rect.top, bottom: rect.bottom
 					};
 				}
+			} else {
+				return {x: 0, y: 0, left: 0, right: 0, width: 0, height: 0, top: 0, bottom: 0};
 			}
 		}
 		/**
