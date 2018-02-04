@@ -10,4 +10,4 @@ script:
   - gulp
   - webpack
 after_success:
-    "curl --ftp-create-dirs -T public_html/*.* -u $SFTP_1AND1_USER:$SFTP_1AND1_PWD ftp://$SFTP_1AND1_HOST/test"
+    "curl --ftp-create-dirs -T public_html/*.* -u $SFTP_1AND1_USER:$SFTP_1AND1_PWD sftp://$SFTP_1AND1_HOST/test"
