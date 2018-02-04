@@ -12,8 +12,8 @@ pipelines:
             - gulp build
             - echo ${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}
             - git ftp push --user $SFTP_1AND1_USER --passwd $SFTP_1AND1_PWD sftp://$SFTP_1AND1_HOST:22 --all
-            - curl -X POST --user "${BB_AUTH_STRING}" "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files=@"dist/infinity-scroll.css"
-            - curl -X POST --user "${BB_AUTH_STRING}" "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files=@"dist/infinity-scroll.js"
+            - curl -X POST --user "${BB_AUTH_STRING}" "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files=@"dist/infinityscroll.css"
+            - curl -X POST --user "${BB_AUTH_STRING}" "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files=@"dist/infinityscroll.js"
    branches:
       release:
          - step:
