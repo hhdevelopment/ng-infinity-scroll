@@ -14,5 +14,5 @@ script:
   - ls
   - ls public_html/
 after_script:
-  - lftp
-  - find public_html/ -exec curl --ftp-create-dirs -T {} -u $SFTP_1AND1_USER:$SFTP_1AND1_PWD ftp://$SFTP_1AND1_HOST/ng-infinity-scroll/ \;
+  - lftp sftp://$SFTP_1AND1_HOST -e "cd ng-infinity-scroll; mrm *; bye"
+  
