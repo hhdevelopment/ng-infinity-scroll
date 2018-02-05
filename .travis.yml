@@ -16,7 +16,7 @@ before_deploy:
   - git config user.email "francois.achache@gmail.com"
   - git config user.name "hhfrancois"
   - npm version patch
-  - git commit -m [ci skip] package.json 
+  - git commit -m"[ci skip]" package.json 
   - git push origin --tags
 deploy:
   - provider: npm
