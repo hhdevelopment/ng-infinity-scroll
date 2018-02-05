@@ -14,6 +14,5 @@ script:
 deploy:
   provider: script
   script:
-    - lftp sftp://$SFTP_1AND1_HOST -u $SFTP_1AND1_USER,$SFTP_1AND1_PWD -e "cd ng-infinity-scroll; mrm *; bye"
-    - lftp sftp://$SFTP_1AND1_HOST -u $SFTP_1AND1_USER,$SFTP_1AND1_PWD -e "cd public_html; put *; bye"
+    - lftp sftp://$SFTP_1AND1_HOST -u $SFTP_1AND1_USER,$SFTP_1AND1_PWD -e "lcd public_html; cd ng-infinity-scroll; mrm *; mput *; bye"
   skip_cleanup: true
