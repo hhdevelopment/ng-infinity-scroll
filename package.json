@@ -3,10 +3,11 @@
   "version": "1.0.12",
   "author": "Achache francois",
   "license": "ISC",
-  "main": [
+  "files": [
     "dist/infinityscroll.js",
     "dist/infinityscroll.css"
   ],
+  "main":"dist/infinityscroll.js",
   "keywords": [
     "angular",
     "infinity scroll",
