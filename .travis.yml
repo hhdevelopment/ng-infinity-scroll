@@ -25,7 +25,7 @@ deploy:
       branch: master
   - provider: releases
     user: "GITHUB USER"
-    password: "GITHUB PASSWORD"
+    password: "GITHUB PWD"
     file: "package.json"
     skip_cleanup: true
     on:
