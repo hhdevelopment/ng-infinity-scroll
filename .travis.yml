@@ -18,16 +18,4 @@ deploy:
       - lftp sftp://$SFTP_1AND1_HOST -u $SFTP_1AND1_USER,$SFTP_1AND1_PWD -e "lcd public_html; cd ng-infinity-scroll; mrm *; mput *; bye"
       - bower register ng-infinity-scroll git@github.com:hhdevelopment/ng-infinity-scroll.git
     skip_cleanup: true
-  - provider: script
-    script:
-      - git config user.email "francois.achache@gmail.com"
-      - git config user.name "hhfrancois"
-      - npm version patch
-      - git push origin --tags
-    on: jkl
-    skip_cleanup: true
-  - provider: npm
-    email: "francois.achache@gmail.com"
-    api_key: "$NPM_TOKEN"
-    on: jkl
-    skip_cleanup: true
+ 
