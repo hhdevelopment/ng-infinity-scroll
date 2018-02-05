@@ -15,7 +15,5 @@ script:
 deploy:
   - provider: script
     script:
-      - lftp sftp://$SFTP_1AND1_HOST -u $SFTP_1AND1_USER,$SFTP_1AND1_PWD -e "lcd public_html; cd ng-infinity-scroll; mrm *; mput *; bye"
       - bower register ng-infinity-scroll git@github.com:hhdevelopment/ng-infinity-scroll.git
     skip_cleanup: true
- 
