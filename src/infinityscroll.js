@@ -1,4 +1,3 @@
-require("./infinityscroll.css");
 (function (ng) {
 	var MODULENAME = 'infinity.scroll';
 	var DIRECTIVENAME = 'infinityScroll';
