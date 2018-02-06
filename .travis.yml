@@ -16,6 +16,7 @@ script:
 before_deploy:
   - git config user.email "$GITHUB_MAIL"
   - git config user.name "$GITHUB_USER"
+  - git status
 deploy:
   - provider: releases
     user: "$GITHUB_USER"
