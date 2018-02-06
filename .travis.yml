@@ -9,26 +9,25 @@ before_install:
 before_script:
   - npm install -g gulp-cli
   - npm install -g bower
-script: 
-  - gulp
-  - webpack
-before_deploy:
   - git config user.email "francois.achache@gmail.com"
   - git config user.name "hhfrancois"
   - npm version patch -m "[ci skip]"
+script: 
+  - gulp
+  - webpack
 deploy:
-  - provider: npm
-    email: "francois.achache@gmail.com"
-    api_key: "$NPM_TOKEN"
-    skip_cleanup: true
-    on: 
-      branch: master
   - provider: releases
     user: "GITHUB_USER"
     password: "GITHUB_PWD"
     file: "package.json"
     skip_cleanup: true
     on:
+      branch: master
+  - provider: npm
+    email: "francois.achache@gmail.com"
+    api_key: "$NPM_TOKEN"
+    skip_cleanup: true
+    on: 
       branch: master
   - provider: script
     script:
