@@ -10,6 +10,7 @@ before_script:
   - npm install -g gulp-cli
   - npm install -g bower
   - npm version patch -m "[ci skip]"
+  - git status
 script: 
   - gulp
   - webpack
