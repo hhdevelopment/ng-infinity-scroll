@@ -25,7 +25,7 @@ deploy:
     on:
       branch: master
   - provider: npm
-    email: "francois.achache@gmail.com"
+    email: "$NPM_MAIL"
     api_key: "$NPM_TOKEN"
     skip_cleanup: true
     on: 
