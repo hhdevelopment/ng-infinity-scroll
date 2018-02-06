@@ -19,7 +19,7 @@ before_deploy:
 deploy:
   - provider: releases
     user: "$GITHUB_USER"
-    password: "$GITHUB_PWD"
+    api_key: "GITHUB_TOKEN"
     file: "package.json"
     skip_cleanup: true
     on:
