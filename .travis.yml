@@ -14,11 +14,11 @@ script:
   - gulp
   - webpack
 before_deploy:
-  - git config user.email "francois.achache@gmail.com"
-  - git config user.name "hhfrancois"
+  - git config user.email "$GITHUB_MAIL"
+  - git config user.name "$GITHUB_USER"
 deploy:
   - provider: releases
-    user: "francois.achache@gmail.com"
+    user: "$GITHUB_USER"
     password: "$GITHUB_PWD"
     file: "package.json"
     skip_cleanup: true
