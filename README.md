@@ -1,4 +1,4 @@
-**ng-infinity-scroll**
+**ng-infinity-scroll** [![Build Status](https://travis-ci.org/hhdevelopment/ng-infinity-scroll.svg?branch=master)](https://travis-ci.org/hhdevelopment/ng-infinity-scroll)
 
 ng-infinity-scroll is a directive for angular 1.x
 
