@@ -17,8 +17,8 @@ script:
   - webpack
 deploy:
   - provider: releases
-    user: "GITHUB_USER"
-    password: "GITHUB_PWD"
+    user: "$GITHUB_USER"
+    password: "$GITHUB_PWD"
     file: "package.json"
     skip_cleanup: true
     on:
