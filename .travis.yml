@@ -41,4 +41,4 @@ deploy:
       - bower register ng-infinity-scroll https://github.com/hhdevelopment/ng-infinity-scroll.git
     skip_cleanup: true
     on: 
-      branch: master
+      branch: bower
