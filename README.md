@@ -1,4 +1,5 @@
-**ng-infinity-scroll** [![Build Status](https://travis-ci.org/hhdevelopment/ng-infinity-scroll.svg?branch=master)](https://travis-ci.org/hhdevelopment/ng-infinity-scroll)
+**ng-infinity-scroll** 
+[![Build Status](https://travis-ci.org/hhdevelopment/ng-infinity-scroll.svg?branch=master)](https://travis-ci.org/hhdevelopment/ng-infinity-scroll)
 
 ng-infinity-scroll is a directive for angular 1.x
 
@@ -8,6 +9,7 @@ It is very usefull to use this directive when you try to show many rows in the t
 
 Define size of your table in pixel and infinity-scroll compute pertinent limit and manage begin variables.
 
+![Screenshot1](screenshot1.png)
 
 ---
 
