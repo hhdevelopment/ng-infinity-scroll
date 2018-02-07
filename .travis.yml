@@ -13,19 +13,16 @@ before_script:
   - git config user.email "$GITHUB_MAIL"
   - git config user.name "$GITHUB_USER"
   - npm install -g gulp-cli
-  - npm install -g bower
 script: 
   - gulp
   - webpack
-after_success:
-  - git branch
-  - git tag
 deploy:
-  - provider: npm
-    email: "$NPM_MAIL"
-    api_key: "$NPM_TOKEN"
+  - provider: script
+    script:
+    - npm version patch -m "[ci skip]"
+    - git status
     skip_cleanup: true
-    on: 
+    on:
       branch: master
   - provider: releases
     user: "$GITHUB_USER"
@@ -35,6 +32,12 @@ deploy:
     skip_cleanup: true
     on:
       branch: master
+  - provider: npm
+    email: "$NPM_MAIL"
+    api_key: "$NPM_TOKEN"
+    skip_cleanup: true
+    on: 
+      branch: master
   - provider: script
     script:
       - lftp sftp://$SFTP_1AND1_HOST -u $SFTP_1AND1_USER,$SFTP_1AND1_PWD -e "lcd public_html; cd ng-infinity-scroll; mrm *; mput *; bye"
@@ -43,7 +46,6 @@ deploy:
       branch: master
   - provider: script
     script:
-      - echo "Register bower"
       - bower register ng-infinity-scroll https://github.com/hhdevelopment/ng-infinity-scroll.git
     skip_cleanup: true
     on: 
