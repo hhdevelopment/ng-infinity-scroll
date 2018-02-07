@@ -12,7 +12,6 @@ before_install:
 before_script:
   - git config user.email "$GITHUB_MAIL"
   - git config user.name "$GITHUB_USER"
-  - git config user.password "$GITHUB_PWD"
   - npm install -g gulp-cli
 script: 
   - gulp
@@ -29,7 +28,7 @@ deploy:
     on:
       branch: master
   - provider: script
-    script: git push https://$GITHUB_TOKEN:x-oauth-basic@github.com/hhdevelopment/ng-infinity-scroll
+    script: git push https://$GITHUB_TOKEN:x-oauth-basic@github.com/hhdevelopment/ng-infinity-scroll.git master
     skip_cleanup: true
     on:
       branch: master

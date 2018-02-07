@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/hhdevelopment/ng-infinity-scroll"
+    "url": "https://github.com/hhdevelopment/ng-infinity-scroll.git"
   },
   "dependencies": {
     "angular": "^1.6.3",
