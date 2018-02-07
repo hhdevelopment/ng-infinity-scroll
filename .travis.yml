@@ -20,6 +20,8 @@ script:
 after_success:
   - npm version patch -m "[ci skip]"
   - git status
+  - git branch
+  - git tag
 deploy:
   - provider: releases
     user: "$GITHUB_USER"
