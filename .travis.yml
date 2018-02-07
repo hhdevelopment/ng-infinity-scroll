@@ -18,12 +18,13 @@ script:
   - webpack
 deploy:
   - provider: script
-    script:
-    - npm version patch -m "[ci skip]"
-    - git status
+    script: npm version patch -m "[ci skip]"
     skip_cleanup: true
     on:
       branch: master
+  - provider: script
+    script: git status
+    skip_cleanup: true
   - provider: releases
     user: "$GITHUB_USER"
     api_key: "$GITHUB_TOKEN"
@@ -39,14 +40,12 @@ deploy:
     on: 
       branch: master
   - provider: script
-    script:
-      - lftp sftp://$SFTP_1AND1_HOST -u $SFTP_1AND1_USER,$SFTP_1AND1_PWD -e "lcd public_html; cd ng-infinity-scroll; mrm *; mput *; bye"
+    script: lftp sftp://$SFTP_1AND1_HOST -u $SFTP_1AND1_USER,$SFTP_1AND1_PWD -e "lcd public_html; cd ng-infinity-scroll; mrm *; mput *; bye"
     skip_cleanup: true
     on: 
       branch: master
   - provider: script
-    script:
-      - bower register ng-infinity-scroll https://github.com/hhdevelopment/ng-infinity-scroll.git
+    script: bower register ng-infinity-scroll https://github.com/hhdevelopment/ng-infinity-scroll.git
     skip_cleanup: true
     on: 
       branch: bower
