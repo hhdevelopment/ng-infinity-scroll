@@ -46,7 +46,7 @@ angular.module('myModule', ['infinity.scroll']);
 ### HTML
 
 ```html
-<infinity-scroll scrollbar-size="12" show-info-delay="2000" total="ctrl.items.length" 
+<infinity-scroll scrollbar-size="md" show-info-delay="2000" total="ctrl.items.length" 
 					ng-begin="begin" ng-limit="limit"
 					style="border:solid 1px black;height:300px">
 	<table class="table table-hover table-striped">
