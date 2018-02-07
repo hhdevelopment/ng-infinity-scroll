@@ -17,6 +17,8 @@ script:
 deploy:
   - provider: script
     script:
+      - git status
+      - echo "Update package version"
       - npm version patch -m "[ci skip]"
       - git status
     skip_cleanup: true
@@ -37,12 +39,14 @@ deploy:
       branch: master
   - provider: script
     script:
+      - echo "Deploy demo"
       - lftp sftp://$SFTP_1AND1_HOST -u $SFTP_1AND1_USER,$SFTP_1AND1_PWD -e "lcd public_html; cd ng-infinity-scroll; mrm *; mput *; bye"
     skip_cleanup: true
     on: 
       branch: master
   - provider: script
     script:
+      - echo "Register bower"
       - bower register ng-infinity-scroll https://github.com/hhdevelopment/ng-infinity-scroll.git
     skip_cleanup: true
     on: 
