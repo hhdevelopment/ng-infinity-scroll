@@ -18,23 +18,22 @@ script:
   - gulp
   - webpack
 after_success:
-  - npm version patch -m "[ci skip]"
-  - git status
   - git branch
   - git tag
 deploy:
-  - provider: releases
-    user: "$GITHUB_USER"
-    api_key: "$GITHUB_TOKEN"
-    file: "package.json"
-    skip_cleanup: true
-    on:
-      branch: master
   - provider: npm
     email: "$NPM_MAIL"
     api_key: "$NPM_TOKEN"
     skip_cleanup: true
     on: 
+      branch: master
+  - provider: releases
+    user: "$GITHUB_USER"
+    api_key: "$GITHUB_TOKEN"
+    file_glob: true
+    file: dist/*
+    skip_cleanup: true
+    on:
       branch: master
   - provider: script
     script:
