@@ -18,6 +18,10 @@ script:
   - webpack
 deploy:
   - provider: script
+    script: git checkout master
+    on:
+      branch: master
+  - provider: script
     script: npm version patch -m "[ci skip]"
     skip_cleanup: true
     on:
