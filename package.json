@@ -1,13 +1,13 @@
 {
   "name": "ng-infinity-scroll",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "author": "Achache francois",
   "license": "ISC",
   "files": [
     "dist/infinityscroll.js",
     "dist/infinityscroll.css"
   ],
-  "main":"dist/infinityscroll.js",
+  "main": "dist/infinityscroll.js",
   "keywords": [
     "angular",
     "infinity scroll",
