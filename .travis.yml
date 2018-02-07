@@ -15,11 +15,9 @@ before_script:
   - npm install -g gulp-cli
   - npm install -g bower
 script: 
-  - echo "Gulp"
   - gulp
-  - echo "Webpack"
   - webpack
-  - echo "Update package version"
+after_success:
   - npm version patch -m "[ci skip]"
   - git status
 deploy:
