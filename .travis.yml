@@ -38,7 +38,6 @@ deploy:
       branch: master
   - provider: script
     script:
-      - echo "Deploy demo"
       - lftp sftp://$SFTP_1AND1_HOST -u $SFTP_1AND1_USER,$SFTP_1AND1_PWD -e "lcd public_html; cd ng-infinity-scroll; mrm *; mput *; bye"
     skip_cleanup: true
     on: 
